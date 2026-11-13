@@ -1,0 +1,1520 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PitchPerfect Cricket — Live Squad & Voting Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #06110e;
+            background-image: 
+                radial-gradient(circle at 50% -10%, rgba(16, 185, 129, 0.16) 0%, transparent 55%),
+                radial-gradient(circle at 90% 95%, rgba(245, 158, 11, 0.09) 0%, transparent 50%);
+            min-height: 100vh;
+        }
+        .glass-panel {
+            background: rgba(12, 27, 23, 0.82);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(52, 211, 153, 0.16);
+        }
+        .tap-card {
+            transition: transform 0.15s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.2s, border-color 0.2s;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .tap-card:active {
+            transform: scale(0.97);
+        }
+        @keyframes slideUpFade {
+            0% { opacity: 0; transform: translateY(12px) scale(0.985); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .animate-reveal {
+            animation: slideUpFade 0.26s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #06110e; }
+        ::-webkit-scrollbar-thumb { background: #143d30; border-radius: 9999px; }
+    </style>
+</head>
+<body class="text-slate-100 antialiased selection:bg-emerald-500 selection:text-slate-950 pb-20">
+
+    <!-- Toast Notification Banner -->
+    <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-all duration-300 transform translate-y-3">
+        <div class="px-4 py-2.5 rounded-full bg-emerald-400 text-slate-950 font-bold text-xs sm:text-sm shadow-2xl shadow-emerald-950/80 flex items-center gap-2 whitespace-nowrap">
+            <span id="toast-icon">✓</span>
+            <span id="toast-text">Updated</span>
+        </div>
+    </div>
+
+    <!-- Captain PIN Modal (Custom Modal - No browser prompt/alert) -->
+    <div id="pin-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-sm rounded-3xl p-6 border border-amber-400/35 shadow-2xl animate-reveal">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                    <span class="text-xl">🛡️</span>
+                    <h3 class="text-lg font-black text-white">Captain Mode</h3>
+                </div>
+                <button onclick="closePinModal()" class="w-8 h-8 rounded-full bg-slate-900 text-slate-400 hover:text-white flex items-center justify-center text-sm font-bold">✕</button>
+            </div>
+                <p class="text-xs text-slate-300 mb-4 leading-relaxed">
+                Enter your Captain PIN to unlock rank promotions, relegations, and squad management.
+            </p>
+            <form onsubmit="submitCaptainPin(event)" class="space-y-3">
+                <input id="pin-input" type="password" inputmode="numeric" maxlength="8" placeholder="Enter Captain PIN" 
+                    class="w-full px-4 py-3 rounded-2xl bg-slate-950 border border-amber-400/30 text-center text-lg font-black tracking-[0.35em] text-amber-300 placeholder-slate-600 placeholder:tracking-normal placeholder:text-xs placeholder:font-medium focus:outline-none focus:border-amber-400">
+                <p id="pin-error" class="hidden text-xs text-rose-400 font-semibold text-center">Incorrect PIN. Try again.</p>
+                <button type="submit" class="w-full py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-sm shadow-lg shadow-amber-500/20 transition">
+                    Unlock Captain Controls
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Confirm Reset/Delete Modal -->
+    <div id="confirm-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-sm rounded-3xl p-6 border border-rose-500/35 shadow-2xl animate-reveal">
+            <h3 id="confirm-title" class="text-lg font-black text-white mb-2">Confirm Action</h3>
+            <p id="confirm-message" class="text-xs text-slate-300 mb-5 leading-relaxed"></p>
+            <div class="flex items-center gap-2.5">
+                <button onclick="closeConfirmModal()" class="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition">
+                    Cancel
+                </button>
+                <button id="confirm-yes-btn" class="flex-1 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-400 text-white font-black text-xs transition">
+                    Confirm
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sticky Header -->
+    <header class="sticky top-0 z-30 glass-panel border-b border-emerald-500/15 px-4 py-3">
+        <div class="max-w-4xl mx-auto flex items-center justify-between gap-2">
+            <!-- Brand & Live Sync Pill -->
+            <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-slate-950 font-black text-xl shadow-lg shadow-emerald-500/20 shrink-0">
+                    🏏
+                </div>
+                <div class="min-w-0">
+                    <div class="flex items-center gap-2">
+                        <h1 class="font-black text-base sm:text-xl tracking-tight text-white truncate">
+                            Pitch<span class="text-emerald-400">Perfect</span>
+                        </h1>
+                        <!-- Connection Indicator -->
+                        <span id="sync-badge" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/15 text-amber-300 border border-amber-500/30 shrink-0">
+                            <span id="sync-dot" class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                            <span id="sync-label">Connecting...</span>
+                        </span>
+                    </div>
+                    <p class="text-[11px] text-slate-400 font-medium truncate">Live Squad Balancer & Group Voting</p>
+                </div>
+            </div>
+
+            <!-- Captain Mode Button -->
+            <button id="captain-btn" onclick="handleCaptainButtonClick()" 
+                class="px-3 py-2 rounded-xl text-xs font-extrabold border transition flex items-center gap-1.5 shrink-0 bg-slate-900/90 border-amber-400/30 text-amber-300 hover:bg-amber-400/15">
+                <span id="captain-btn-icon">🔒</span>
+                <span id="captain-btn-text">Captain Mode</span>
+            </button>
+        </div>
+
+        <!-- Primary Navigation Tabs -->
+        <div class="max-w-4xl mx-auto mt-3 grid grid-cols-2 gap-2 p-1 rounded-2xl bg-slate-950/80 border border-emerald-500/15">
+            <button id="tab-matchday" onclick="switchTab('matchday')" 
+                class="py-2.5 px-3 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center justify-center gap-1.5 bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20">
+                <span>⚡</span>
+                <span>Matchday Draw</span>
+            </button>
+            <button id="tab-voting" onclick="switchTab('voting')" 
+                class="py-2.5 px-3 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center justify-center gap-1.5 text-slate-300 hover:text-white">
+                <span>🗳️</span>
+                <span>Rankings & Votes</span>
+                <span id="total-votes-pill" class="px-1.5 py-0.5 rounded-full text-[10px] bg-slate-800 text-emerald-300 font-black">0</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 pt-5 space-y-6">
+
+        <!-- CAPTAIN ADMIN PANEL (Visible only when unlocked with PIN) -->
+        <section id="captain-panel" class="hidden glass-panel rounded-3xl p-4 sm:p-6 border border-amber-400/40 shadow-2xl shadow-amber-950/30 animate-reveal space-y-5">
+            <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-amber-400/20">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-400 text-slate-950">Captain Unlocked</span>
+                        <h2 class="text-base sm:text-lg font-black text-white">Roster & Vote Command Center</h2>
+                    </div>
+                    <p class="text-xs text-amber-100/75 mt-1">All promotions, relegations, and squad changes sync live to everyone's phones immediately.</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="confirmApproveAndNextRound()" class="px-3.5 py-2 rounded-xl text-xs font-black bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-md shadow-emerald-500/20 transition">
+                        ✅ Approve & Start Next Voting Round
+                    </button>
+                    <button onclick="lockCaptainMode()" class="px-3 py-2 rounded-xl text-xs font-extrabold bg-amber-400 hover:bg-amber-300 text-slate-950 transition">
+                        Lock Panel
+                    </button>
+                </div>
+            </div>
+
+            <!-- Add Permanent Player & Change PIN Row -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Add Permanent Player -->
+                <form onsubmit="captainAddPermanentPlayer(event)" class="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-2.5">
+                    <label class="block text-xs font-extrabold uppercase tracking-wider text-emerald-300">+ Add Permanent Squad Member</label>
+                    <div class="flex items-center gap-2">
+                        <input id="perm-player-name" type="text" maxlength="22" placeholder="Player name..." required
+                            class="flex-1 min-w-0 px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-400">
+                        <select id="perm-player-rank" class="px-2.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs font-bold text-slate-200 focus:outline-none focus:border-emerald-400">
+                            <option value="A+">👑 Legendary</option>
+                            <option value="A">🔥 All-Star</option>
+                            <option value="B">⚡ Contender</option>
+                            <option value="C" selected>🛡️ Challenger</option>
+                            <option value="D">🌱 Rookie</option>
+                        </select>
+                        <button type="submit" class="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs transition shrink-0">
+                            Add
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Update Captain PIN -->
+                <form onsubmit="captainUpdatePin(event)" class="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-2.5">
+                    <label class="block text-xs font-extrabold uppercase tracking-wider text-amber-300">🔑 Change Captain PIN</label>
+                    <div class="flex items-center gap-2">
+                        <input id="new-pin-input" type="password" inputmode="numeric" maxlength="8" placeholder="New 4-8 digit PIN..." required
+                            class="flex-1 min-w-0 px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-400">
+                        <button type="submit" class="px-3.5 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs transition shrink-0">
+                            Save PIN
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Captain Roster Promotion / Relegation Table -->
+            <div>
+                <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-2.5">Manage Player Ranks & Review Group Votes</h3>
+                <div id="captain-roster-list" class="space-y-2 max-h-96 overflow-y-auto pr-1">
+                    <!-- Rendered dynamically -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================================================================== -->
+        <!-- VIEW 1: MATCHDAY TAB (ATTENDANCE + TEAM BALANCER + LIVE MATCHUP)       -->
+        <!-- ===================================================================== -->
+        <div id="view-matchday" class="space-y-6">
+
+            <!-- Step 1: Daily Attendance -->
+            <section class="glass-panel rounded-3xl p-4 sm:p-6 shadow-xl">
+                <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-emerald-500/15">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-base sm:text-lg font-black text-white">1. Who's Playing Today?</h2>
+                            <span id="active-count-badge" class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                                15 / 15 Active
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-0.5">Tap players to toggle today's attendance (syncs live across devices).</p>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <button onclick="setAllAttendance(true)" class="px-3 py-2 rounded-xl text-xs font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/25 hover:bg-emerald-500/25 transition">
+                            Select All
+                        </button>
+                        <button onclick="setAllAttendance(false)" class="px-3 py-2 rounded-xl text-xs font-bold bg-slate-800/90 text-slate-300 border border-slate-700 hover:bg-slate-700 transition">
+                            Clear
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Attendance Grid Grouped by Tier -->
+                <div id="attendance-container" class="mt-4 space-y-5">
+                    <!-- Populated via JS -->
+                </div>
+
+                <!-- Quick One-Off Guest Player Form -->
+                <div class="mt-6 pt-4 border-t border-emerald-500/15">
+                    <form onsubmit="addGuestPlayer(event)" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+                        <input id="guest-name-input" type="text" maxlength="22" placeholder="+ Add one-off guest for today's match..." 
+                            class="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-950/85 border border-emerald-500/20 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-400 transition">
+                        <div class="flex items-center gap-2">
+                            <select id="guest-rank-select" class="flex-1 sm:w-44 px-3 py-2.5 rounded-xl bg-slate-950/85 border border-emerald-500/20 text-sm text-slate-200 focus:outline-none focus:border-emerald-400">
+                                <option value="C" selected>🛡️ Challenger (2 pts)</option>
+                                <option value="D">🌱 Rookie (1 pt)</option>
+                                <option value="B">⚡ Contender (3 pts)</option>
+                                <option value="A">🔥 All-Star (4 pts)</option>
+                                <option value="A+">👑 Legendary (5 pts)</option>
+                            </select>
+                            <button type="submit" class="px-4 py-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/35 font-extrabold text-sm transition whitespace-nowrap">
+                                + Guest
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Step 2: Team Names & Generate CTA -->
+            <section class="glass-panel rounded-3xl p-4 sm:p-5 shadow-xl space-y-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-extrabold uppercase tracking-wider text-emerald-300/80 mb-1">Team A Name</label>
+                        <input id="team1-name" type="text" value="Strikers" maxlength="20"
+                            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/80 border border-emerald-500/25 text-sm font-extrabold text-white focus:outline-none focus:border-emerald-400">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-extrabold uppercase tracking-wider text-amber-300/80 mb-1">Team B Name</label>
+                        <input id="team2-name" type="text" value="Titans" maxlength="20"
+                            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/80 border border-amber-500/25 text-sm font-extrabold text-white focus:outline-none focus:border-amber-400">
+                    </div>
+                </div>
+
+                <button onclick="generateTeams(false)" 
+                    class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-emerald-500 via-emerald-400 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-base sm:text-lg tracking-tight shadow-xl shadow-emerald-500/25 transition active:scale-[0.99] flex items-center justify-center gap-2">
+                    <span>⚡ Generate / Re-Roll Teams</span>
+                </button>
+            </section>
+
+            <!-- Step 3: Live Generated Matchup -->
+            <section id="matchup-section" class="hidden space-y-4 animate-reveal">
+                <!-- Matchup Header & Actions -->
+                <div class="glass-panel rounded-3xl p-4 sm:p-5 border-emerald-400/35 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div class="space-y-1">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span id="balance-badge" class="px-2.5 py-1 rounded-lg text-xs font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                                ⚖️ Balanced Matchup
+                            </span>
+                            <span id="chaos-badge" class="hidden px-2.5 py-1 rounded-lg text-xs font-extrabold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                                🎲 Wildcard All-Star Stack
+                            </span>
+                        </div>
+                        <p id="balance-explanation" class="text-xs text-slate-300 leading-relaxed"></p>
+                    </div>
+
+                    <div class="flex items-center gap-2 w-full sm:w-auto shrink-0">
+                        <button onclick="generateTeams(true)" class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs sm:text-sm shadow-md shadow-amber-500/15 transition flex items-center justify-center gap-1.5">
+                            <span>🔄</span>
+                            <span>Re-Roll</span>
+                        </button>
+                        <button onclick="copyForWhatsApp()" class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-200 border border-emerald-400/35 font-extrabold text-xs sm:text-sm transition flex items-center justify-center gap-1.5">
+                            <span>📋</span>
+                            <span>Copy for WhatsApp</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Team Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div id="team1-card" class="glass-panel rounded-3xl overflow-hidden border-t-4 border-t-emerald-400 shadow-xl flex flex-col"></div>
+                    <div id="team2-card" class="glass-panel rounded-3xl overflow-hidden border-t-4 border-t-amber-400 shadow-xl flex flex-col"></div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ===================================================================== -->
+        <!-- VIEW 2: RANKINGS & DEMOCRATIC VOTING TAB                              -->
+        <!-- ===================================================================== -->
+        <div id="view-voting" class="hidden space-y-5 animate-reveal">
+            <section class="glass-panel rounded-3xl p-4 sm:p-6 shadow-xl">
+                <div class="flex flex-wrap items-center justify-between gap-2 pb-4 border-b border-emerald-500/15">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-base sm:text-lg font-black text-white">🗳️ Group Promotion & Relegation Board</h2>
+                            <span id="voting-round-badge" class="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                                Round #1
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-300 mt-1 leading-relaxed">
+                            Pick your <span class="text-emerald-400 font-bold">▲ Promote</span> or <span class="text-rose-400 font-bold">▼ Relegate</span> selections as a draft, then confirm &amp; lock your ballot for the Captain to review.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Ballot Status / Confirm & Lock Banner -->
+                <div id="ballot-action-banner" class="mt-4">
+                    <!-- Rendered dynamically via JS -->
+                </div>
+
+                <div id="voting-board-container" class="mt-5 space-y-6">
+                    <!-- Rendered dynamically via JS -->
+                </div>
+            </section>
+        </div>
+
+    </main>
+
+    <!-- Global non-module script for inline event handlers -->
+    <script>
+        let activeTab = 'matchday';
+        window.switchTab = function(tabName) {
+            activeTab = tabName;
+            const matchdayBtn = document.getElementById('tab-matchday');
+            const votingBtn = document.getElementById('tab-voting');
+            const matchdayView = document.getElementById('view-matchday');
+            const votingView = document.getElementById('view-voting');
+
+            if (!matchdayBtn || !votingBtn || !matchdayView || !votingView) return;
+
+            if (tabName === 'matchday') {
+                matchdayBtn.className = 'py-2.5 px-3 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center justify-center gap-1.5 bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20';
+                votingBtn.className = 'py-2.5 px-3 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center justify-center gap-1.5 text-slate-300 hover:text-white';
+                matchdayView.classList.remove('hidden');
+                votingView.classList.add('hidden');
+            } else {
+                votingBtn.className = 'py-2.5 px-3 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center justify-center gap-1.5 bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20';
+                matchdayBtn.className = 'py-2.5 px-3 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center justify-center gap-1.5 text-slate-300 hover:text-white';
+                votingView.classList.remove('hidden');
+                matchdayView.classList.add('hidden');
+            }
+        };
+    </script>
+
+    <!-- Firebase SDK v11.6.1 -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // =====================================================================
+        // 1. RANK DEFINITIONS & EXACT DEFAULT 15-PLAYER ROSTER
+        // =====================================================================
+        const RANKS = {
+            'A+': {
+                key: 'A+',
+                title: 'Legendary',
+                icon: '👑',
+                points: 5,
+                order: 1,
+                badgeClass: 'bg-amber-500/20 text-amber-300 border-amber-400/40',
+                headerClass: 'text-amber-300',
+                chipActiveClass: 'bg-amber-500/15 border-amber-400/60 text-white shadow-sm shadow-amber-500/15'
+            },
+            'A': {
+                key: 'A',
+                title: 'All-Stars',
+                icon: '🔥',
+                points: 4,
+                order: 2,
+                badgeClass: 'bg-rose-500/20 text-rose-300 border-rose-400/40',
+                headerClass: 'text-rose-300',
+                chipActiveClass: 'bg-rose-500/15 border-rose-400/50 text-white shadow-sm shadow-rose-500/10'
+            },
+            'B': {
+                key: 'B',
+                title: 'Contenders',
+                icon: '⚡',
+                points: 3,
+                order: 3,
+                badgeClass: 'bg-sky-500/20 text-sky-300 border-sky-400/40',
+                headerClass: 'text-sky-300',
+                chipActiveClass: 'bg-sky-500/15 border-sky-400/50 text-white shadow-sm shadow-sky-500/10'
+            },
+            'C': {
+                key: 'C',
+                title: 'Challengers',
+                icon: '🛡️',
+                points: 2,
+                order: 4,
+                badgeClass: 'bg-emerald-500/20 text-emerald-300 border-emerald-400/40',
+                headerClass: 'text-emerald-300',
+                chipActiveClass: 'bg-emerald-500/15 border-emerald-400/50 text-white shadow-sm shadow-emerald-500/10'
+            },
+            'D': {
+                key: 'D',
+                title: 'Rookies',
+                icon: '🌱',
+                points: 1,
+                order: 5,
+                badgeClass: 'bg-slate-500/20 text-slate-300 border-slate-400/35',
+                headerClass: 'text-slate-300',
+                chipActiveClass: 'bg-teal-500/15 border-teal-400/45 text-white'
+            }
+        };
+
+        const DEFAULT_PLAYERS = [
+            { id: 'p_ammar', name: 'Ammar', rank: 'A+', present: true, isGuest: false, upvotes: 0, downvotes: 0 },
+            { id: 'p_abdullah', name: 'Abdullah', rank: 'A', present: true, isGuest: false, upvotes: 0, downvotes: 0 },
+            { id: 'p_umair', name: 'Umair', rank: 'A', present: true, isGuest: false, upvotes: 0, downvotes: 0 },
+            { id: 'p_faiq', name: 'Faiq', rank: 'A', present: true, isGuest: false, upvotes: 0, downvotes: 0 },
+            { id: 'p_sherry', name: 'Sherry', rank: 'A', present: true, isGuest: false, upvotes: 0, downvotes: 0 },
+            { id: 'p_zazi', name: 'Zazi', rank: 'A', present: true, isGuest: false, upvotes: 0, downvotes: 0 },
+            { id: 'p_baby', name: 'Baby', rank: 'B', present: true, isGuest: false, upvotes: 0, downvotes: 0 },
+            { id: 'p_suleman', name: 'Suleman', rank: 'B', present: true, isGuest: false, upvotes: 0, downvotes: 0 },
+            { id: 'p_hamza', name: 'Hamza', rank: 'B', present: true, isGuest: false, upvotes: 0, downvotes: 0 },
+            { id: 'p_subhan', name: 'Subhan', rank: 'C', present: true, isGuest: false, upvotes: 0, downvotes: 0 },
+            { id: 'p_jalal', name: 'Jalal', rank: 'C', present: true, isGuest: false, upvotes: 0, downvotes: 0 },
+            { id: 'p_shahzain', name: 'Shahzain', rank: 'D', present: true, isGuest: false, upvotes: 0, downvotes: 0 },
+            { id: 'p_ayan', name: 'Ayan', rank: 'D', present: true, isGuest: false, upvotes: 0, downvotes: 0 },
+            { id: 'p_rafay', name: 'Rafay', rank: 'D', present: true, isGuest: false, upvotes: 0, downvotes: 0 },
+            { id: 'p_obaid', name: 'Obaid', rank: 'D', present: true, isGuest: false, upvotes: 0, downvotes: 0 }
+        ];
+
+        // =====================================================================
+        // 2. APPLICATION STATE & FIREBASE SETUP
+        // =====================================================================
+        const STORAGE_CAPTAIN_PIN_KEY = 'pitchperfect_captain_pin_v1';
+        let savedLocalPin = localStorage.getItem(STORAGE_CAPTAIN_PIN_KEY);
+        if (savedLocalPin === '5002') {
+            savedLocalPin = '5020';
+            localStorage.setItem(STORAGE_CAPTAIN_PIN_KEY, '5020');
+        }
+
+        let state = {
+            players: JSON.parse(JSON.stringify(DEFAULT_PLAYERS)),
+            captainPin: savedLocalPin || '5020',
+            votingRoundId: 1,
+            currentMatchup: null
+        };
+
+        // Per-device ballot state persisted in localStorage so refreshing keeps draft/lock status
+        const STORAGE_SUBMITTED_ROUND_KEY = 'pitchperfect_submitted_round_v1';
+        const STORAGE_DRAFT_PICKS_KEY = 'pitchperfect_draft_picks_v1';
+
+        let submittedRoundId = Number(localStorage.getItem(STORAGE_SUBMITTED_ROUND_KEY) || 0);
+        let draftPicks = {};
+        try {
+            const savedDraft = JSON.parse(localStorage.getItem(STORAGE_DRAFT_PICKS_KEY) || '{}');
+            if (savedDraft && typeof savedDraft === 'object') {
+                draftPicks = savedDraft;
+            }
+        } catch (e) {
+            draftPicks = {};
+        }
+
+        function saveLocalBallotStorage() {
+            try {
+                localStorage.setItem(STORAGE_SUBMITTED_ROUND_KEY, String(submittedRoundId));
+                localStorage.setItem(STORAGE_DRAFT_PICKS_KEY, JSON.stringify(draftPicks));
+            } catch (e) {
+                console.warn('Storage unavailable:', e);
+            }
+        }
+
+        function isDeviceLockedForCurrentRound() {
+            return submittedRoundId === (state.votingRoundId || 1);
+        }
+
+        let isCaptainUnlocked = false;
+        let lastSplitSignature = null;
+        let pendingConfirmCallback = null;
+
+        // Firebase References
+        let db = null;
+        let auth = null;
+        let currentUser = null;
+        let groupDocRef = null;
+        let isCloudReady = false;
+
+        async function initFirebase() {
+            try {
+                if (typeof __firebase_config === 'undefined' || !__firebase_config) {
+                    setSyncStatus('offline', 'Local Preview');
+                    renderAll();
+                    return;
+                }
+
+                const firebaseConfig = JSON.parse(__firebase_config);
+                const appId = typeof __app_id !== 'undefined' ? __app_id : 'pitchperfect-cricket';
+
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                // RULE 3: Authenticate before any Firestore operations
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                currentUser = auth.currentUser;
+
+                if (!currentUser) {
+                    setSyncStatus('offline', 'Offline Mode');
+                    renderAll();
+                    return;
+                }
+
+                // RULE 1: Strict public shared path so everyone opening the pinned link sees the exact same live state
+                groupDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'cricket_hub', 'main_squad');
+
+                // Listen for real-time updates
+                onSnapshot(
+                    groupDocRef,
+                    async (snapshot) => {
+                        if (!snapshot.exists()) {
+                            // First-ever load: seed the exact 15-player roster into Firebase
+                            await setDoc(groupDocRef, {
+                                players: DEFAULT_PLAYERS,
+                                captainPin: state.captainPin || '5020',
+                                votingRoundId: 1,
+                                currentMatchup: null,
+                                updatedAt: Date.now()
+                            });
+                        } else {
+                            const data = snapshot.data();
+                            if (Array.isArray(data.players) && data.players.length > 0) {
+                                state.players = data.players;
+                            }
+                            if (data.captainPin && String(data.captainPin) !== '5002') {
+                                state.captainPin = String(data.captainPin);
+                                try { localStorage.setItem(STORAGE_CAPTAIN_PIN_KEY, state.captainPin); } catch (e) {}
+                            }
+                            state.votingRoundId = Number(data.votingRoundId || 1);
+                            state.currentMatchup = data.currentMatchup || null;
+                        }
+
+                        isCloudReady = true;
+                        setSyncStatus('live', 'Live Synced');
+                        renderAll();
+                    },
+                    (error) => {
+                        console.error('Firestore snapshot error:', error);
+                        setSyncStatus('offline', 'Sync Error');
+                        renderAll();
+                    }
+                );
+            } catch (err) {
+                console.error('Firebase initialization failed:', err);
+                setSyncStatus('offline', 'Local Mode');
+                renderAll();
+            }
+        }
+
+        async function pushStateToCloud(partialUpdate) {
+            // Always update local state immediately for snappy mobile UX
+            Object.assign(state, partialUpdate);
+            renderAll();
+
+            if (!isCloudReady || !currentUser || !groupDocRef) return;
+
+            try {
+                await updateDoc(groupDocRef, {
+                    ...partialUpdate,
+                    updatedAt: Date.now()
+                });
+            } catch (err) {
+                console.error('Failed to sync update to cloud:', err);
+                showToast('Could not sync to cloud — check connection', '⚠️');
+            }
+        }
+
+        function setSyncStatus(mode, text) {
+            const badge = document.getElementById('sync-badge');
+            const dot = document.getElementById('sync-dot');
+            const label = document.getElementById('sync-label');
+
+            label.textContent = text;
+            if (mode === 'live') {
+                badge.className = 'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 shrink-0';
+                dot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400';
+            } else {
+                badge.className = 'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/15 text-amber-300 border border-amber-500/30 shrink-0';
+                dot.className = 'w-1.5 h-1.5 rounded-full bg-amber-400';
+            }
+        }
+
+        // =====================================================================
+        // 3. TAB NAVIGATION & CAPTAIN PIN SECURITY
+        // =====================================================================
+        // Note: switchTab is defined in the global script tag above for DOM accessibility
+
+        window.handleCaptainButtonClick = function() {
+            if (isCaptainUnlocked) {
+                lockCaptainMode();
+            } else {
+                document.getElementById('pin-error').classList.add('hidden');
+                document.getElementById('pin-input').value = '';
+                document.getElementById('pin-modal').classList.remove('hidden');
+                setTimeout(() => document.getElementById('pin-input').focus(), 80);
+            }
+        };
+
+        window.closePinModal = function() {
+            document.getElementById('pin-modal').classList.add('hidden');
+        };
+
+        window.submitCaptainPin = function(e) {
+            e.preventDefault();
+            const entered = document.getElementById('pin-input').value.trim();
+            if (entered === state.captainPin) {
+                isCaptainUnlocked = true;
+                closePinModal();
+                updateCaptainHeaderBtn();
+                document.getElementById('captain-panel').classList.remove('hidden');
+                renderCaptainPanel();
+                showToast('Captain Mode Unlocked', '🛡️');
+            } else {
+                document.getElementById('pin-error').classList.remove('hidden');
+            }
+        };
+
+        window.lockCaptainMode = function() {
+            isCaptainUnlocked = false;
+            updateCaptainHeaderBtn();
+            document.getElementById('captain-panel').classList.add('hidden');
+            showToast('Captain Mode Locked', '🔒');
+        };
+
+        function updateCaptainHeaderBtn() {
+            const btn = document.getElementById('captain-btn');
+            const icon = document.getElementById('captain-btn-icon');
+            const text = document.getElementById('captain-btn-text');
+
+            if (isCaptainUnlocked) {
+                btn.className = 'px-3 py-2 rounded-xl text-xs font-extrabold border transition flex items-center gap-1.5 shrink-0 bg-amber-400 border-amber-300 text-slate-950 shadow-md shadow-amber-500/20';
+                icon.textContent = '🛡️';
+                text.textContent = 'Captain Active';
+            } else {
+                btn.className = 'px-3 py-2 rounded-xl text-xs font-extrabold border transition flex items-center gap-1.5 shrink-0 bg-slate-900/90 border-amber-400/30 text-amber-300 hover:bg-amber-400/15';
+                icon.textContent = '🔒';
+                text.textContent = 'Captain Mode';
+            }
+        }
+
+        // =====================================================================
+        // 4. CAPTAIN ADMIN ACTIONS (LIVE SYNCED TO ALL PHONES)
+        // =====================================================================
+        const RANK_ORDER_LIST = ['A+', 'A', 'B', 'C', 'D'];
+
+        window.captainStepRank = async function(playerId, stepDelta) {
+            if (!isCaptainUnlocked) return;
+            const player = state.players.find(p => p.id === playerId);
+            if (!player) return;
+
+            const currentIdx = RANK_ORDER_LIST.indexOf(player.rank);
+            // stepDelta: -1 moves up toward A+ (promote), +1 moves down toward D (relegate)
+            const nextIdx = Math.max(0, Math.min(RANK_ORDER_LIST.length - 1, currentIdx + stepDelta));
+            if (nextIdx === currentIdx) return;
+
+            const newRank = RANK_ORDER_LIST[nextIdx];
+            await captainChangePlayerRank(playerId, newRank);
+        };
+
+        window.captainChangePlayerRank = async function(playerId, newRank) {
+            if (!isCaptainUnlocked || !RANKS[newRank]) return;
+            const updatedPlayers = state.players.map(p => {
+                if (p.id === playerId) {
+                    showToast(`${p.name} moved to ${RANKS[newRank].title}`, RANKS[newRank].icon);
+                    return { ...p, rank: newRank };
+                }
+                return p;
+            });
+            await pushStateToCloud({ players: updatedPlayers });
+        };
+
+        window.captainResetPlayerVotes = async function(playerId) {
+            if (!isCaptainUnlocked) return;
+            const updatedPlayers = state.players.map(p => {
+                if (p.id === playerId) {
+                    return { ...p, upvotes: 0, downvotes: 0 };
+                }
+                return p;
+            });
+            await pushStateToCloud({ players: updatedPlayers });
+            showToast('Player votes cleared', '🧹');
+        };
+
+        window.confirmApproveAndNextRound = function() {
+            if (!isCaptainUnlocked) return;
+            const nextRound = (state.votingRoundId || 1) + 1;
+            openConfirmModal(
+                `Approve & Start Round #${nextRound}?`,
+                `This will reset all players' official vote counters back to 0 and immediately unlock voting on everyone's phones for Round #${nextRound}.`,
+                async () => {
+                    const updatedPlayers = state.players.map(p => ({ ...p, upvotes: 0, downvotes: 0 }));
+                    draftPicks = {};
+                    saveLocalBallotStorage();
+                    await pushStateToCloud({
+                        players: updatedPlayers,
+                        votingRoundId: nextRound
+                    });
+                    showToast(`Round #${nextRound} is now open for voting!`, '✅');
+                }
+            );
+        };
+
+        window.captainAddPermanentPlayer = async function(e) {
+            e.preventDefault();
+            if (!isCaptainUnlocked) return;
+            const nameInput = document.getElementById('perm-player-name');
+            const rankSelect = document.getElementById('perm-player-rank');
+            const name = nameInput.value.trim();
+            if (!name) return;
+
+            const newPlayer = {
+                id: 'p_' + Date.now(),
+                name,
+                rank: rankSelect.value,
+                present: true,
+                isGuest: false,
+                upvotes: 0,
+                downvotes: 0
+            };
+
+            const updatedPlayers = [...state.players, newPlayer];
+            nameInput.value = '';
+            await pushStateToCloud({ players: updatedPlayers });
+            showToast(`Added ${name} to permanent roster`, '✓');
+        };
+
+        window.captainRemovePlayer = function(playerId, playerName) {
+            if (!isCaptainUnlocked) return;
+            openConfirmModal(
+                `Remove ${playerName}?`,
+                `Are you sure you want to remove ${playerName} from the squad list?`,
+                async () => {
+                    const updatedPlayers = state.players.filter(p => p.id !== playerId);
+                    await pushStateToCloud({ players: updatedPlayers });
+                    showToast(`Removed ${playerName}`, '✕');
+                }
+            );
+        };
+
+        window.captainUpdatePin = async function(e) {
+            e.preventDefault();
+            if (!isCaptainUnlocked) return;
+            const input = document.getElementById('new-pin-input');
+            const newPin = input.value.trim();
+            if (newPin.length < 4) {
+                showToast('PIN must be at least 4 digits', '⚠️');
+                return;
+            }
+            input.value = '';
+            try { localStorage.setItem(STORAGE_CAPTAIN_PIN_KEY, newPin); } catch (err) {}
+            await pushStateToCloud({ captainPin: newPin });
+            showToast('New Captain PIN saved!', '🔑');
+        };
+
+        // =====================================================================
+        // 5. LOCKED-BALLOT DEMOCRATIC VOTING (DRAFT -> CONFIRM & LOCK -> REVIEW)
+        // =====================================================================
+        window.toggleDraftVote = function(playerId, direction) {
+            if (isDeviceLockedForCurrentRound()) {
+                showToast('Ballot locked — waiting for Captain approval', '🔒');
+                return;
+            }
+
+            if (draftPicks[playerId] === direction) {
+                delete draftPicks[playerId];
+            } else {
+                draftPicks[playerId] = direction;
+            }
+
+            saveLocalBallotStorage();
+            renderVotingBoard();
+        };
+
+        window.clearDraftBallot = function() {
+            if (isDeviceLockedForCurrentRound()) return;
+            draftPicks = {};
+            saveLocalBallotStorage();
+            renderVotingBoard();
+            showToast('Draft picks cleared', '🧹');
+        };
+
+        window.confirmSubmitBallot = function() {
+            if (isDeviceLockedForCurrentRound()) return;
+            const selectedIds = Object.keys(draftPicks);
+            if (selectedIds.length === 0) {
+                showToast('Select at least 1 player vote first', '⚠️');
+                return;
+            }
+
+            openConfirmModal(
+                `Lock In ${selectedIds.length} Vote${selectedIds.length > 1 ? 's' : ''}?`,
+                'Lock in your votes? You won’t be able to vote again until the Captain reviews and approves this round.',
+                async () => {
+                    const updatedPlayers = state.players.map(p => {
+                        const pick = draftPicks[p.id];
+                        if (!pick) return p;
+                        return {
+                            ...p,
+                            upvotes: (p.upvotes || 0) + (pick === 'up' ? 1 : 0),
+                            downvotes: (p.downvotes || 0) + (pick === 'down' ? 1 : 0)
+                        };
+                    });
+
+                    submittedRoundId = state.votingRoundId || 1;
+                    draftPicks = {};
+                    saveLocalBallotStorage();
+
+                    await pushStateToCloud({ players: updatedPlayers });
+                    showToast('Ballot Confirmed & Locked!', '✅');
+                }
+            );
+        };
+
+        // =====================================================================
+        // 6. ATTENDANCE & GUEST MANAGEMENT
+        // =====================================================================
+        window.toggleAttendance = async function(playerId) {
+            const updatedPlayers = state.players.map(p => 
+                p.id === playerId ? { ...p, present: !p.present } : p
+            );
+            await pushStateToCloud({ players: updatedPlayers });
+        };
+
+        window.setAllAttendance = async function(presentState) {
+            const updatedPlayers = state.players.map(p => ({ ...p, present: presentState }));
+            await pushStateToCloud({ players: updatedPlayers });
+        };
+
+        window.addGuestPlayer = async function(e) {
+            e.preventDefault();
+            const input = document.getElementById('guest-name-input');
+            const select = document.getElementById('guest-rank-select');
+            const name = input.value.trim();
+            if (!name) return;
+
+            const guest = {
+                id: 'guest_' + Date.now(),
+                name,
+                rank: select.value,
+                present: true,
+                isGuest: true,
+                upvotes: 0,
+                downvotes: 0
+            };
+
+            input.value = '';
+            await pushStateToCloud({ players: [...state.players, guest] });
+            showToast(`Added guest ${name}`, '+');
+        };
+
+        window.removeGuest = async function(playerId) {
+            const updatedPlayers = state.players.filter(p => p.id !== playerId);
+            await pushStateToCloud({ players: updatedPlayers });
+            showToast('Guest removed', '✕');
+        };
+
+        // =====================================================================
+        // 7. SMART TEAM BALANCING ENGINE (CONTROLLED CHAOS + ODD-NUMBER RULE)
+        // =====================================================================
+        function shuffleArray(arr) {
+            const copy = [...arr];
+            for (let i = copy.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [copy[i], copy[j]] = [copy[j], copy[i]];
+            }
+            return copy;
+        }
+
+        function getSplitSignature(team1, team2) {
+            const s1 = team1.map(p => p.id).sort().join(',');
+            const s2 = team2.map(p => p.id).sort().join(',');
+            return [s1, s2].sort().join('|');
+        }
+
+        window.generateTeams = async function(isReroll = false) {
+            const activePlayers = state.players.filter(p => p.present);
+            if (activePlayers.length < 2) {
+                showToast('Select at least 2 players to generate teams!', '⚠️');
+                return;
+            }
+
+            const totalPlayers = activePlayers.length;
+            const isOdd = totalPlayers % 2 !== 0;
+            const sizeSmall = Math.floor(totalPlayers / 2);
+            const sizeLarge = Math.ceil(totalPlayers / 2);
+
+            // ~18% Controlled Chaos: occasionally lets 2-3 All-Stars stack together while keeping match points balanced
+            const allowAllStarStack = Math.random() < 0.18;
+            const totalAllStars = activePlayers.filter(p => p.rank === 'A' || p.rank === 'A+').length;
+
+            let candidates = [];
+
+            for (let attempt = 0; attempt < 450; attempt++) {
+                const shuffled = shuffleArray(activePlayers);
+                const teamSmall = shuffled.slice(0, sizeSmall);
+                const teamLarge = shuffled.slice(sizeSmall);
+
+                const team1GetsSmall = Math.random() < 0.5;
+                const t1 = team1GetsSmall ? teamSmall : teamLarge;
+                const t2 = team1GetsSmall ? teamLarge : teamSmall;
+
+                const sig = getSplitSignature(t1, t2);
+                if (isReroll && sig === lastSplitSignature && activePlayers.length > 3) {
+                    continue;
+                }
+
+                const pts1 = t1.reduce((sum, p) => sum + RANKS[p.rank].points, 0);
+                const pts2 = t2.reduce((sum, p) => sum + RANKS[p.rank].points, 0);
+                const pointDiff = Math.abs(pts1 - pts2);
+
+                const top1 = t1.filter(p => p.rank === 'A' || p.rank === 'A+').length;
+                const top2 = t2.filter(p => p.rank === 'A' || p.rank === 'A+').length;
+                const topDiff = Math.abs(top1 - top2);
+
+                const hasLegendary1 = t1.some(p => p.rank === 'A+');
+                const hasLegendary2 = t2.some(p => p.rank === 'A+');
+
+                let penalty = 0;
+
+                if (!isOdd) {
+                    penalty += pointDiff * 12;
+                    if (!allowAllStarStack) {
+                        penalty += topDiff * 18;
+                    } else if (topDiff >= 2 && topDiff <= 3 && pointDiff <= 3) {
+                        penalty -= 8;
+                    }
+                } else {
+                    // ODD-NUMBER RULE: Smaller team gets slight skill-point boost OR Legendary anchor (Ammar)
+                    const smallPts = team1GetsSmall ? pts1 : pts2;
+                    const largePts = team1GetsSmall ? pts2 : pts1;
+                    const smallHasLegendary = team1GetsSmall ? hasLegendary1 : hasLegendary2;
+                    const advantage = smallPts - largePts;
+
+                    if (advantage >= 1 && advantage <= 3) {
+                        penalty += 0;
+                    } else if (advantage === 0 && smallHasLegendary) {
+                        penalty += 4;
+                    } else if (advantage > 3) {
+                        penalty += (advantage - 3) * 14;
+                    } else {
+                        penalty += Math.abs(1 - advantage) * 20;
+                    }
+
+                    if (!allowAllStarStack) {
+                        penalty += topDiff * 10;
+                    }
+                }
+
+                penalty += Math.random() * 6;
+
+                candidates.push({
+                    t1, t2, pts1, pts2, pointDiff,
+                    isOdd, team1GetsSmall, sig, penalty,
+                    isWildcardStack: allowAllStarStack && topDiff >= 2 && totalAllStars >= 3
+                });
+            }
+
+            if (candidates.length === 0) {
+                const shuffled = shuffleArray(activePlayers);
+                const t1 = shuffled.slice(0, sizeSmall);
+                const t2 = shuffled.slice(sizeSmall);
+                const pts1 = t1.reduce((s, p) => s + RANKS[p.rank].points, 0);
+                const pts2 = t2.reduce((s, p) => s + RANKS[p.rank].points, 0);
+                candidates.push({
+                    t1, t2, pts1, pts2,
+                    pointDiff: Math.abs(pts1 - pts2),
+                    isOdd, team1GetsSmall: true,
+                    sig: getSplitSignature(t1, t2),
+                    penalty: 0,
+                    isWildcardStack: false
+                });
+            }
+
+            candidates.sort((a, b) => a.penalty - b.penalty);
+            const topPool = candidates.slice(0, Math.min(5, candidates.length));
+            const chosen = topPool[Math.floor(Math.random() * topPool.length)];
+
+            chosen.t1.sort((a, b) => RANKS[a.rank].order - RANKS[b.rank].order);
+            chosen.t2.sort((a, b) => RANKS[a.rank].order - RANKS[b.rank].order);
+
+            lastSplitSignature = chosen.sig;
+
+            const t1Name = document.getElementById('team1-name').value.trim() || 'Team A';
+            const t2Name = document.getElementById('team2-name').value.trim() || 'Team B';
+
+            const matchupPayload = {
+                t1Name,
+                t2Name,
+                t1: chosen.t1,
+                t2: chosen.t2,
+                pts1: chosen.pts1,
+                pts2: chosen.pts2,
+                pointDiff: chosen.pointDiff,
+                isOdd: chosen.isOdd,
+                team1GetsSmall: chosen.team1GetsSmall,
+                isWildcardStack: chosen.isWildcardStack
+            };
+
+            await pushStateToCloud({ currentMatchup: matchupPayload });
+            document.getElementById('matchup-section').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        };
+
+        // =====================================================================
+        // 8. RENDER ALL UI SECTIONS
+        // =====================================================================
+        function renderAll() {
+            renderAttendance();
+            renderVotingBoard();
+            renderMatchup();
+            if (isCaptainUnlocked) {
+                renderCaptainPanel();
+            }
+        }
+
+        function renderAttendance() {
+            const container = document.getElementById('attendance-container');
+            container.innerHTML = '';
+
+            const presentCount = state.players.filter(p => p.present).length;
+            document.getElementById('active-count-badge').textContent = `${presentCount} / ${state.players.length} Active`;
+
+            ['A+', 'A', 'B', 'C', 'D'].forEach(rankKey => {
+                const rankMeta = RANKS[rankKey];
+                const groupPlayers = state.players.filter(p => p.rank === rankKey);
+                if (groupPlayers.length === 0) return;
+
+                const section = document.createElement('div');
+                section.className = 'space-y-2';
+
+                section.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm">${rankMeta.icon}</span>
+                            <h3 class="text-xs font-black uppercase tracking-wider ${rankMeta.headerClass}">${rankMeta.title}</h3>
+                            <span class="text-[10px] font-bold text-slate-400 bg-slate-900 px-2 py-0.5 rounded-md border border-slate-800">${rankMeta.points} pt${rankMeta.points > 1 ? 's' : ''}</span>
+                        </div>
+                        <span class="text-[11px] text-slate-500 font-semibold">${groupPlayers.filter(p => p.present).length}/${groupPlayers.length} playing</span>
+                    </div>
+                `;
+
+                const grid = document.createElement('div');
+                grid.className = 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5';
+
+                groupPlayers.forEach(p => {
+                    const card = document.createElement('div');
+                    const activeStyle = p.present
+                        ? rankMeta.chipActiveClass
+                        : 'bg-slate-950/55 border-slate-800/80 text-slate-500 opacity-60 hover:opacity-90';
+
+                    card.className = `tap-card cursor-pointer p-3 rounded-2xl border flex items-center justify-between gap-2 ${activeStyle}`;
+                    card.onclick = () => toggleAttendance(p.id);
+
+                    card.innerHTML = `
+                        <div class="flex items-center gap-2 min-w-0">
+                            <span class="text-sm shrink-0">${p.present ? rankMeta.icon : '⚪'}</span>
+                            <div class="truncate">
+                                <div class="font-extrabold text-sm text-white truncate">${escapeHtml(p.name)}</div>
+                                ${p.isGuest ? '<span class="text-[10px] uppercase tracking-wider text-emerald-400 font-black">Guest</span>' : ''}
+                            </div>
+                        </div>
+                        <div class="shrink-0">
+                            ${p.isGuest ? `
+                                <button onclick="event.stopPropagation(); removeGuest('${p.id}')" class="w-6 h-6 rounded-lg bg-slate-900 text-slate-400 hover:text-rose-400 flex items-center justify-center text-xs font-bold" title="Remove Guest">✕</button>
+                            ` : `
+                                <span class="w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-black ${p.present ? 'bg-emerald-400 text-slate-950' : 'bg-slate-800 text-slate-600'}">
+                                    ${p.present ? '✓' : ''}
+                                </span>
+                            `}
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+
+                section.appendChild(grid);
+                container.appendChild(section);
+            });
+        }
+
+        function renderVotingBoard() {
+            const container = document.getElementById('voting-board-container');
+            const banner = document.getElementById('ballot-action-banner');
+            container.innerHTML = '';
+
+            const currentRound = state.votingRoundId || 1;
+            document.getElementById('voting-round-badge').textContent = `Round #${currentRound}`;
+
+            const totalOfficialVotes = state.players.reduce((sum, p) => sum + (p.upvotes || 0) + (p.downvotes || 0), 0);
+            document.getElementById('total-votes-pill').textContent = totalOfficialVotes;
+
+            const isLocked = isDeviceLockedForCurrentRound();
+            const draftEntries = Object.entries(draftPicks).filter(([id]) =>
+                state.players.some(p => p.id === id && !p.isGuest)
+            );
+            const draftCount = draftEntries.length;
+
+            if (isLocked) {
+                banner.innerHTML = `
+                    <div class="p-4 rounded-2xl bg-emerald-500/15 border border-emerald-400/40 flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-lg shrink-0">
+                            ✅
+                        </div>
+                        <div>
+                            <div class="text-xs sm:text-sm font-black text-emerald-200">
+                                Ballot Confirmed &amp; Locked
+                            </div>
+                            <p class="text-[11px] sm:text-xs text-emerald-100/80 mt-0.5 leading-relaxed">
+                                Waiting for Captain to review and approve Round #${currentRound}. Voting unlocks automatically when the next round starts.
+                            </p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                banner.innerHTML = `
+                    <div class="p-3.5 sm:p-4 rounded-2xl bg-slate-950/85 border ${draftCount > 0 ? 'border-amber-400/45 shadow-lg shadow-amber-500/10' : 'border-slate-800'} flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs sm:text-sm font-black text-white">
+                                    ${draftCount > 0 ? `📝 ${draftCount} Draft Pick${draftCount > 1 ? 's' : ''} Ready` : '📝 Draft Your Ballot'}
+                                </span>
+                                ${draftCount > 0 ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-400/20 text-amber-300 border border-amber-400/35">Not Submitted Yet</span>' : ''}
+                            </div>
+                            <p class="text-[11px] text-slate-400 mt-0.5">
+                                ${draftCount > 0
+                                    ? 'Tap Confirm & Lock below to submit your votes to the Captain.'
+                                    : 'Tap ▲ or ▼ on players below to select your draft picks before locking in.'}
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            ${draftCount > 0 ? `
+                                <button onclick="clearDraftBallot()" class="px-3 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 text-xs font-bold transition">
+                                    Clear
+                                </button>
+                            ` : ''}
+                            <button onclick="confirmSubmitBallot()" ${draftCount === 0 ? 'disabled' : ''}
+                                class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition flex items-center justify-center gap-1.5 ${
+                                    draftCount > 0
+                                        ? 'bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 shadow-lg shadow-emerald-500/25 cursor-pointer'
+                                        : 'bg-slate-800/80 text-slate-500 border border-slate-700/70 cursor-not-allowed'
+                                }">
+                                <span>🗳️ Confirm &amp; Lock My Ballot (${draftCount})</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            ['A+', 'A', 'B', 'C', 'D'].forEach(rankKey => {
+                const rankMeta = RANKS[rankKey];
+                const groupPlayers = state.players.filter(p => p.rank === rankKey && !p.isGuest);
+                if (groupPlayers.length === 0) return;
+
+                const section = document.createElement('div');
+                section.className = 'space-y-2.5';
+
+                section.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="text-base">${rankMeta.icon}</span>
+                            <h3 class="text-xs sm:text-sm font-black uppercase tracking-wider ${rankMeta.headerClass}">
+                                ${rankMeta.title} (${rankKey})
+                            </h3>
+                        </div>
+                        <span class="text-[11px] font-bold text-slate-400">${rankMeta.points} Power Pts</span>
+                    </div>
+                `;
+
+                const list = document.createElement('div');
+                list.className = 'grid grid-cols-1 sm:grid-cols-2 gap-2.5';
+
+                groupPlayers.forEach(p => {
+                    const draftPick = isLocked ? undefined : draftPicks[p.id];
+                    const hasDraft = Boolean(draftPick);
+
+                    const upStyle = isLocked
+                        ? 'bg-slate-900/50 text-slate-500 border-slate-800 cursor-not-allowed opacity-70'
+                        : draftPick === 'up'
+                            ? 'bg-emerald-500 text-slate-950 border-emerald-300 shadow-md shadow-emerald-500/25'
+                            : 'bg-slate-900/90 text-emerald-300 border-emerald-500/25 hover:bg-emerald-500/15';
+
+                    const downStyle = isLocked
+                        ? 'bg-slate-900/50 text-slate-500 border-slate-800 cursor-not-allowed opacity-70'
+                        : draftPick === 'down'
+                            ? 'bg-rose-500 text-white border-rose-300 shadow-md shadow-rose-500/25'
+                            : 'bg-slate-900/90 text-rose-300 border-rose-500/25 hover:bg-rose-500/15';
+
+                    const cardBorder = hasDraft
+                        ? (draftPick === 'up' ? 'border-emerald-400/60 bg-emerald-950/20' : 'border-rose-400/60 bg-rose-950/20')
+                        : 'border-slate-800/90 bg-slate-950/70';
+
+                    const row = document.createElement('div');
+                    row.className = `p-3 rounded-2xl border flex items-center justify-between gap-2 transition ${cardBorder}`;
+
+                    row.innerHTML = `
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <span class="text-base shrink-0">${rankMeta.icon}</span>
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="font-extrabold text-sm sm:text-base text-white truncate">${escapeHtml(p.name)}</span>
+                                    ${hasDraft ? `
+                                        <span class="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider shrink-0 ${
+                                            draftPick === 'up' ? 'bg-emerald-400/20 text-emerald-300 border border-emerald-400/40' : 'bg-rose-400/20 text-rose-300 border border-rose-400/40'
+                                        }">
+                                            Draft Pick
+                                        </span>
+                                    ` : ''}
+                                </div>
+                                <div class="text-[11px] text-slate-400 font-medium">
+                                    Official: <span class="text-emerald-400 font-bold">▲ ${p.upvotes || 0}</span> • <span class="text-rose-400 font-bold">▼ ${p.downvotes || 0}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-1.5 shrink-0">
+                            <button onclick="toggleDraftVote('${p.id}', 'up')" ${isLocked ? 'disabled' : ''}
+                                class="tap-card px-3 py-2 rounded-xl border text-xs font-black flex items-center gap-1 transition ${upStyle}" title="${isLocked ? 'Ballot Locked' : 'Draft Vote: Promote'}">
+                                <span>▲</span>
+                                <span>${(p.upvotes || 0) + (draftPick === 'up' ? 1 : 0)}</span>
+                            </button>
+                            <button onclick="toggleDraftVote('${p.id}', 'down')" ${isLocked ? 'disabled' : ''}
+                                class="tap-card px-3 py-2 rounded-xl border text-xs font-black flex items-center gap-1 transition ${downStyle}" title="${isLocked ? 'Ballot Locked' : 'Draft Vote: Relegate'}">
+                                <span>▼</span>
+                                <span>${(p.downvotes || 0) + (draftPick === 'down' ? 1 : 0)}</span>
+                            </button>
+                        </div>
+                    `;
+                    list.appendChild(row);
+                });
+
+                section.appendChild(list);
+                container.appendChild(section);
+            });
+        }
+
+        function renderCaptainPanel() {
+            const list = document.getElementById('captain-roster-list');
+            list.innerHTML = '';
+
+            // Sort players by highest net votes first so Captain immediately sees hot promotion/relegation candidates
+            const sortedPlayers = [...state.players].sort((a, b) => {
+                const activityA = (a.upvotes || 0) + (a.downvotes || 0);
+                const activityB = (b.upvotes || 0) + (b.downvotes || 0);
+                if (activityB !== activityA) return activityB - activityA;
+                return RANKS[a.rank].order - RANKS[b.rank].order;
+            });
+
+            sortedPlayers.forEach(p => {
+                const r = RANKS[p.rank];
+                const rankIdx = RANK_ORDER_LIST.indexOf(p.rank);
+                const canPromote = rankIdx > 0;
+                const canRelegate = rankIdx < RANK_ORDER_LIST.length - 1;
+
+                const row = document.createElement('div');
+                row.className = 'p-3 rounded-2xl bg-slate-950/80 border border-slate-800 flex flex-wrap items-center justify-between gap-2.5';
+
+                row.innerHTML = `
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="text-base">${r.icon}</span>
+                        <div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="font-extrabold text-sm text-white">${escapeHtml(p.name)}</span>
+                                ${p.isGuest ? '<span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-bold">Guest</span>' : ''}
+                            </div>
+                            <div class="flex items-center gap-2 text-[11px] font-bold mt-0.5">
+                                <span class="text-emerald-400">▲ ${p.upvotes || 0} Confirmed</span>
+                                <span class="text-slate-600">•</span>
+                                <span class="text-rose-400">▼ ${p.downvotes || 0} Confirmed</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-1.5">
+                        <button onclick="captainStepRank('${p.id}', -1)" ${!canPromote ? 'disabled' : ''}
+                            class="px-2 py-1.5 rounded-xl border text-xs font-black transition ${canPromote ? 'bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border-emerald-500/35' : 'bg-slate-900 text-slate-600 border-slate-800 cursor-not-allowed'}" title="Promote +1 Tier">
+                            ▲ +1
+                        </button>
+                        <button onclick="captainStepRank('${p.id}', 1)" ${!canRelegate ? 'disabled' : ''}
+                            class="px-2 py-1.5 rounded-xl border text-xs font-black transition ${canRelegate ? 'bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border-rose-500/35' : 'bg-slate-900 text-slate-600 border-slate-800 cursor-not-allowed'}" title="Relegate -1 Tier">
+                            ▼ -1
+                        </button>
+                        <select onchange="captainChangePlayerRank('${p.id}', this.value)" 
+                            class="px-2.5 py-1.5 rounded-xl bg-slate-900 border border-amber-400/35 text-xs font-extrabold text-amber-200 focus:outline-none focus:border-amber-400">
+                            ${['A+', 'A', 'B', 'C', 'D'].map(rk => `
+                                <option value="${rk}" ${p.rank === rk ? 'selected' : ''}>
+                                    ${RANKS[rk].icon} ${RANKS[rk].title} (${rk})
+                                </option>
+                            `).join('')}
+                        </select>
+                        ${((p.upvotes || 0) > 0 || (p.downvotes || 0) > 0) ? `
+                            <button onclick="captainResetPlayerVotes('${p.id}')" class="px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 text-xs font-bold" title="Clear player's votes">
+                                Reset Votes
+                            </button>
+                        ` : ''}
+                        <button onclick="captainRemovePlayer('${p.id}', '${escapeHtml(p.name).replace(/'/g, "\\'")}')" class="w-8 h-8 rounded-xl bg-rose-500/15 hover:bg-rose-500/30 text-rose-400 border border-rose-500/30 flex items-center justify-center text-xs font-black" title="Remove Player">
+                            ✕
+                        </button>
+                    </div>
+                `;
+                list.appendChild(row);
+            });
+        }
+
+        function renderMatchup() {
+            const match = state.currentMatchup;
+            const section = document.getElementById('matchup-section');
+
+            if (!match || !match.t1 || !match.t2) {
+                section.classList.add('hidden');
+                return;
+            }
+
+            section.classList.remove('hidden');
+
+            const balanceBadge = document.getElementById('balance-badge');
+            const chaosBadge = document.getElementById('chaos-badge');
+            const explanation = document.getElementById('balance-explanation');
+
+            if (match.isWildcardStack) {
+                chaosBadge.classList.remove('hidden');
+            } else {
+                chaosBadge.classList.add('hidden');
+            }
+
+            if (match.isOdd) {
+                const smallTeam = match.team1GetsSmall ? match.t1Name : match.t2Name;
+                const largeTeam = match.team1GetsSmall ? match.t2Name : match.t1Name;
+                const smallLen = match.team1GetsSmall ? match.t1.length : match.t2.length;
+                const largeLen = match.team1GetsSmall ? match.t2.length : match.t1.length;
+
+                balanceBadge.textContent = `⚖️ ${smallLen}v${largeLen} Odd-Player Compensation`;
+                explanation.textContent = `${smallTeam} (${smallLen} players) received a skill-point boost or Legendary anchor to balance ${largeTeam}'s extra player (${largeLen} players).`;
+            } else if (match.pointDiff === 0) {
+                balanceBadge.textContent = '🎯 Dead-Even Power Split';
+                explanation.textContent = `Both ${match.t1Name} and ${match.t2Name} are locked at ${match.pts1} Squad Power Points.`;
+            } else {
+                balanceBadge.textContent = `⚖️ Balanced Matchup (Δ ${match.pointDiff} pt${match.pointDiff > 1 ? 's' : ''})`;
+                explanation.textContent = `Squads are within ${match.pointDiff} power point${match.pointDiff > 1 ? 's' : ''} for a competitive game.`;
+            }
+
+            renderTeamCard('team1-card', match.t1Name, match.t1, match.pts1, 'emerald');
+            renderTeamCard('team2-card', match.t2Name, match.t2, match.pts2, 'amber');
+        }
+
+        function renderTeamCard(elementId, teamName, roster, totalPoints, accent) {
+            const card = document.getElementById(elementId);
+            const pillStyle = accent === 'emerald'
+                ? 'bg-emerald-500/15 border-emerald-500/35 text-emerald-300'
+                : 'bg-amber-500/15 border-amber-500/35 text-amber-300';
+
+            const playersHtml = roster.map((p, idx) => {
+                const r = RANKS[p.rank] || RANKS['C'];
+                return `
+                    <div class="flex items-center justify-between py-2.5 px-3 rounded-2xl bg-slate-950/65 border border-slate-800/85">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <span class="text-xs font-mono text-slate-500 w-4">${idx + 1}.</span>
+                            <span class="text-base">${r.icon}</span>
+                            <span class="font-extrabold text-sm sm:text-base text-white truncate">${escapeHtml(p.name)}</span>
+                            ${p.isGuest ? '<span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-bold">Guest</span>' : ''}
+                        </div>
+                        <span class="px-2.5 py-0.5 rounded-lg text-[11px] font-extrabold border ${r.badgeClass} shrink-0">
+                            ${r.title}
+                        </span>
+                    </div>
+                `;
+            }).join('');
+
+            card.innerHTML = `
+                <div class="p-4 sm:p-5 bg-slate-950/45 border-b border-slate-800/80 flex items-center justify-between gap-2">
+                    <div>
+                        <h3 class="text-lg sm:text-xl font-black tracking-tight text-white">${escapeHtml(teamName)}</h3>
+                        <p class="text-xs text-slate-400 font-semibold mt-0.5">${roster.length} Player${roster.length !== 1 ? 's' : ''}</p>
+                    </div>
+                    <div class="px-3 py-1.5 rounded-xl border ${pillStyle} font-black text-xs sm:text-sm">
+                        ⚡ ${totalPoints} Power Pts
+                    </div>
+                </div>
+                <div class="p-4 space-y-2 flex-1">
+                    ${playersHtml}
+                </div>
+            `;
+        }
+
+        // =====================================================================
+        // 9. WHATSAPP EXPORT & HELPERS
+        // =====================================================================
+        window.copyForWhatsApp = function() {
+            const match = state.currentMatchup;
+            if (!match) return;
+
+            const formatTeam = (name, roster, pts) => {
+                const lines = roster.map((p, i) => {
+                    const r = RANKS[p.rank] || RANKS['C'];
+                    return `${i + 1}. ${r.icon} *${p.name}* _(${r.title})_`;
+                });
+                return `*🏏 ${name.toUpperCase()}* (${roster.length} Players | ⚡ ${pts} pts)\n` + lines.join('\n');
+            };
+
+            const text = [
+                `🏆 *TODAY'S CRICKET LINEUPS* 🏆`,
+                ``,
+                formatTeam(match.t1Name, match.t1, match.pts1),
+                ``,
+                `🆚`,
+                ``,
+                formatTeam(match.t2Name, match.t2, match.pts2),
+                ``,
+                `_Live on PitchPerfect Squad Hub_`
+            ].join('\n');
+
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.left = '-9999px';
+            document.body.appendChild(ta);
+            ta.select();
+            try {
+                document.execCommand('copy');
+                showToast('Copied! Ready to paste in WhatsApp', '📋');
+            } catch (err) {
+                showToast('Could not copy automatically', '⚠️');
+            }
+            document.body.removeChild(ta);
+        };
+
+        function openConfirmModal(title, message, onConfirm) {
+            document.getElementById('confirm-title').textContent = title;
+            document.getElementById('confirm-message').textContent = message;
+            pendingConfirmCallback = onConfirm;
+            document.getElementById('confirm-modal').classList.remove('hidden');
+        }
+
+        window.closeConfirmModal = function() {
+            document.getElementById('confirm-modal').classList.add('hidden');
+            pendingConfirmCallback = null;
+        };
+
+        document.getElementById('confirm-yes-btn').addEventListener('click', async () => {
+            if (typeof pendingConfirmCallback === 'function') {
+                await pendingConfirmCallback();
+            }
+            closeConfirmModal();
+        });
+
+        let toastTimer = null;
+        function showToast(msg, icon = '✓') {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-text').textContent = msg;
+            document.getElementById('toast-icon').textContent = icon;
+            toast.classList.remove('opacity-0', 'translate-y-3');
+            toast.classList.add('opacity-100', 'translate-y-0');
+
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'translate-y-3');
+            }, 2500);
+        }
+
+        function escapeHtml(str) {
+            return String(str).replace(/[&<>"']/g, m => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            }[m]));
+        }
+
+        // Boot app
+        window.addEventListener('DOMContentLoaded', () => {
+            renderAll();
+            initFirebase();
+        });
+    </script>
+</body>
+</html>
