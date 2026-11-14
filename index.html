@@ -210,7 +210,7 @@
                 <div class="flex flex-wrap items-center justify-between gap-2">
                     <div>
                         <h2 class="text-base sm:text-lg font-black text-white">Balanced Team Generator</h2>
-                        <p class="text-xs text-slate-400">Balances Tier weights (T1=3pts, T2=2pts, T3=1pt) and roles across both squads.</p>
+                        <p class="text-xs text-slate-400">Balances Tier power points (👑5, 🔥4, ⚔️3, 🛡️2, 🐣1) across both squads.</p>
                     </div>
                     <span id="teams-available-pill" class="px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
                         15 Players Ready
@@ -373,7 +373,7 @@
                 <div class="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-400/25 text-xs text-amber-100/90 flex flex-wrap items-center justify-between gap-2">
                     <div>
                         <span class="font-extrabold text-amber-300">Shared-Device Exceptions Active:</span>
-                        <span>[Hamza &amp; Subhan] and [Sherry &amp; Baby] can each vote once from their shared pair device.</span>
+                        <span>[Hamza &amp; Subhan] and [Shawar &amp; Khubaib] can each vote once from their shared pair device.</span>
                     </div>
                     <span id="cap-linked-summary" class="px-2.5 py-1 rounded-lg bg-slate-950/80 text-amber-300 font-extrabold text-[11px]">
                         0 / 15 Devices Linked
@@ -383,7 +383,7 @@
                 <!-- 15-Player Roster, Tier & Device Binding Manager -->
                 <div>
                     <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-3">
-                        Squad Roster, Tiers &amp; Device Bindings
+                        Squad Roster, Categories &amp; Device Bindings
                     </h3>
                     <div id="captain-roster-list" class="space-y-2.5">
                         <!-- Rendered dynamically -->
@@ -401,72 +401,86 @@
         import { getFirestore, doc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // =====================================================================
-        // 1. CONFIGURATION, TIERS, SHARED PAIRS & DEFAULT 15-PLAYER ROSTER
+        // 1. CONFIGURATION, 5 CATEGORIES, SHARED PAIRS & EXACT 15-PLAYER ROSTER
         // =====================================================================
         const TIERS = {
             1: {
                 level: 1,
-                label: 'Elite',
-                points: 3,
+                label: 'LEGENDARY',
+                points: 5,
                 icon: '👑',
                 badgeClass: 'bg-amber-500/20 text-amber-300 border-amber-400/45',
                 cardActiveClass: 'bg-amber-500/12 border-amber-400/50 shadow-sm shadow-amber-500/10'
             },
             2: {
                 level: 2,
-                label: 'Core',
-                points: 2,
+                label: 'ALL-STARS',
+                points: 4,
                 icon: '🔥',
-                badgeClass: 'bg-emerald-500/20 text-emerald-300 border-emerald-400/40',
-                cardActiveClass: 'bg-emerald-500/12 border-emerald-400/45 shadow-sm shadow-emerald-500/10'
+                badgeClass: 'bg-rose-500/20 text-rose-300 border-rose-400/45',
+                cardActiveClass: 'bg-rose-500/12 border-rose-400/50 shadow-sm shadow-rose-500/10'
             },
             3: {
                 level: 3,
-                label: 'Developing',
+                label: 'CONTENDERS',
+                points: 3,
+                icon: '⚔️',
+                badgeClass: 'bg-sky-500/20 text-sky-300 border-sky-400/45',
+                cardActiveClass: 'bg-sky-500/12 border-sky-400/50 shadow-sm shadow-sky-500/10'
+            },
+            4: {
+                level: 4,
+                label: 'CHALLENGERS',
+                points: 2,
+                icon: '🛡️',
+                badgeClass: 'bg-emerald-500/20 text-emerald-300 border-emerald-400/40',
+                cardActiveClass: 'bg-emerald-500/12 border-emerald-400/45 shadow-sm shadow-emerald-500/10'
+            },
+            5: {
+                level: 5,
+                label: 'ROOKIES',
                 points: 1,
-                icon: '⚡',
-                badgeClass: 'bg-sky-500/20 text-sky-300 border-sky-400/40',
-                cardActiveClass: 'bg-sky-500/12 border-sky-400/45 shadow-sm shadow-sky-500/10'
+                icon: '🐣',
+                badgeClass: 'bg-teal-500/20 text-teal-300 border-teal-400/40',
+                cardActiveClass: 'bg-teal-500/12 border-teal-400/45 shadow-sm shadow-teal-500/10'
             }
-        };
-
-        const ROLE_ICONS = {
-            'Batsman': '🏏',
-            'Bowler': '🎯',
-            'All-Rounder': '⭐',
-            'Wicketkeeper': '🧤'
         };
 
         // Shared-device pairs allowed to share one phone (1 vote each)
         const SHARED_PAIRS = [
             ['Hamza', 'Subhan'],
-            ['Sherry', 'Baby']
+            ['Shawar', 'Khubaib']
         ];
 
         const DEFAULT_PLAYERS = [
-            { id: 'p_hamza', name: 'Hamza', role: 'Batsman', tier: 1, available: true },
-            { id: 'p_subhan', name: 'Subhan', role: 'Bowler', tier: 2, available: true },
-            { id: 'p_sherry', name: 'Sherry', role: 'Wicketkeeper', tier: 1, available: true },
-            { id: 'p_baby', name: 'Baby', role: 'All-Rounder', tier: 2, available: true },
-            { id: 'p_suleiman', name: 'Suleiman', role: 'Bowler', tier: 2, available: true },
-            { id: 'p_ali', name: 'Ali', role: 'All-Rounder', tier: 1, available: true },
-            { id: 'p_bilal', name: 'Bilal', role: 'Batsman', tier: 1, available: true },
-            { id: 'p_daniyal', name: 'Daniyal', role: 'Bowler', tier: 1, available: true },
-            { id: 'p_fahad', name: 'Fahad', role: 'All-Rounder', tier: 2, available: true },
-            { id: 'p_haris', name: 'Haris', role: 'Bowler', tier: 2, available: true },
-            { id: 'p_kamran', name: 'Kamran', role: 'Batsman', tier: 2, available: true },
-            { id: 'p_omar', name: 'Omar', role: 'Wicketkeeper', tier: 3, available: true },
-            { id: 'p_saad', name: 'Saad', role: 'Batsman', tier: 3, available: true },
-            { id: 'p_talha', name: 'Talha', role: 'Bowler', tier: 3, available: true },
-            { id: 'p_usman', name: 'Usman', role: 'All-Rounder', tier: 3, available: true }
+            // 👑 LEGENDARY (5 pts)
+            { id: 'p_ammar', name: 'Ammar', tier: 1, available: true },
+            // 🔥 ALL-STARS (4 pts)
+            { id: 'p_abdullah', name: 'Abdullah', tier: 2, available: true },
+            { id: 'p_umair', name: 'Umair', tier: 2, available: true },
+            { id: 'p_faiq', name: 'Faiq', tier: 2, available: true },
+            { id: 'p_shawar', name: 'Shawar', tier: 2, available: true },
+            { id: 'p_atizaz', name: 'Atizaz', tier: 2, available: true },
+            // ⚔️ CONTENDERS (3 pts)
+            { id: 'p_khubaib', name: 'Khubaib', tier: 3, available: true },
+            { id: 'p_suleman', name: 'Suleman', tier: 3, available: true },
+            { id: 'p_hamza', name: 'Hamza', tier: 3, available: true },
+            // 🛡️ CHALLENGERS (2 pts)
+            { id: 'p_subhan', name: 'Subhan', tier: 4, available: true },
+            { id: 'p_jalal', name: 'Jalal', tier: 4, available: true },
+            // 🐣 ROOKIES (1 pt)
+            { id: 'p_shahzain', name: 'Shahzain', tier: 5, available: true },
+            { id: 'p_ayan', name: 'Ayan', tier: 5, available: true },
+            { id: 'p_rafay', name: 'Rafay', tier: 5, available: true },
+            { id: 'p_obaid', name: 'Obaid', tier: 5, available: true }
         ];
 
         const CAPTAIN_PIN = '5020';
-        const LOCAL_STORAGE_KEY = 'pitchperfect_cricket_state_v3';
-        const LOCAL_DEVICE_FALLBACK_KEY = 'pitchperfect_local_device_uid_v3';
+        const LOCAL_STORAGE_KEY = 'pitchperfect_cricket_state_v4';
+        const LOCAL_DEVICE_FALLBACK_KEY = 'pitchperfect_local_device_uid_v4';
 
         // =====================================================================
-        // 2. APPLICATION STATE & FIREBASE REAL-TIME SYNC
+        // 2. APPLICATION STATE & FIREBASE REALTIME SYNC
         // =====================================================================
         let state = {
             players: JSON.parse(JSON.stringify(DEFAULT_PLAYERS)),
@@ -474,7 +488,6 @@
             // deviceBindings: { [playerId]: deviceUid }
             deviceBindings: {},
             // ballots: { [voterPlayerId]: { [targetPlayerId]: 1 | -1 } }
-            // Never displayed by voter identity in UI; used strictly to prevent duplicate votes & allow Captain voiding
             ballots: {},
             freezeClaims: false,
             currentMatchup: null
@@ -575,7 +588,7 @@
                     currentDeviceUid = auth.currentUser.uid;
                 }
 
-                squadDocRef = doc(db, 'artifacts', 'pitchperfect-cricket', 'public', 'data', 'squadState', 'main');
+                squadDocRef = doc(db, 'artifacts', 'pitchperfect-cricket', 'public', 'data', 'squadState', 'v4_roster');
 
                 onSnapshot(
                     squadDocRef,
@@ -1073,16 +1086,8 @@
             return [a, b].sort().join('|');
         }
 
-        function countRoles(team) {
-            const counts = { 'Batsman': 0, 'Bowler': 0, 'All-Rounder': 0, 'Wicketkeeper': 0 };
-            team.forEach(p => {
-                if (counts[p.role] !== undefined) counts[p.role]++;
-            });
-            return counts;
-        }
-
         function getTierPoints(tier) {
-            return (TIERS[tier] && TIERS[tier].points) ? TIERS[tier].points : 2;
+            return (TIERS[tier] && TIERS[tier].points) ? TIERS[tier].points : 3;
         }
 
         window.generateBalancedTeams = async function(isReshuffle = false) {
@@ -1117,27 +1122,20 @@
                 const ratingB = teamB.reduce((sum, p) => sum + getTierPoints(p.tier), 0);
                 const ratingDiff = Math.abs(ratingA - ratingB);
 
-                const rolesA = countRoles(teamA);
-                const rolesB = countRoles(teamB);
-                const roleDiff =
-                    Math.abs(rolesA['Batsman'] - rolesB['Batsman']) +
-                    Math.abs(rolesA['Bowler'] - rolesB['Bowler']) +
-                    Math.abs(rolesA['All-Rounder'] - rolesB['All-Rounder']) +
-                    Math.abs(rolesA['Wicketkeeper'] - rolesB['Wicketkeeper']) * 1.5;
-
-                const eliteA = teamA.filter(p => Number(p.tier) === 1).length;
-                const eliteB = teamB.filter(p => Number(p.tier) === 1).length;
-                const eliteDiff = Math.abs(eliteA - eliteB);
+                // Count top-tier players (Tier 1 Legendary & Tier 2 All-Stars)
+                const topA = teamA.filter(p => Number(p.tier) <= 2).length;
+                const topB = teamB.filter(p => Number(p.tier) <= 2).length;
+                const topDiff = Math.abs(topA - topB);
 
                 let penalty = 0;
                 if (!isOdd) {
-                    penalty += ratingDiff * 15 + roleDiff * 5 + eliteDiff * 8;
+                    penalty += ratingDiff * 15 + topDiff * 10;
                 } else {
                     const smallRating = teamAGetsSmall ? ratingA : ratingB;
                     const largeRating = teamAGetsSmall ? ratingB : ratingA;
                     const advantage = smallRating - largeRating;
-                    const idealOffsetPenalty = (advantage >= 0 && advantage <= 2) ? 0 : Math.abs(1 - advantage) * 14;
-                    penalty += idealOffsetPenalty + roleDiff * 5 + eliteDiff * 6;
+                    const idealOffsetPenalty = (advantage >= 0 && advantage <= 3) ? 0 : Math.abs(1 - advantage) * 14;
+                    penalty += idealOffsetPenalty + topDiff * 8;
                 }
 
                 penalty += Math.random() * 4.5;
@@ -1174,7 +1172,7 @@
             const topPool = candidates.slice(0, Math.min(5, candidates.length));
             const chosen = topPool[Math.floor(Math.random() * topPool.length)];
 
-            // Sort Tier 1 (Elite) -> Tier 2 (Core) -> Tier 3 (Developing)
+            // Sort Tier 1 (Legendary) -> Tier 5 (Rookies)
             chosen.teamA.sort((a, b) => a.tier - b.tier || a.name.localeCompare(b.name));
             chosen.teamB.sort((a, b) => a.tier - b.tier || a.name.localeCompare(b.name));
 
@@ -1206,9 +1204,8 @@
 
             const formatSquad = (name, roster, rating) => {
                 const lines = roster.map((p, idx) => {
-                    const t = TIERS[p.tier] || TIERS[2];
-                    const rIcon = ROLE_ICONS[p.role] || '🏏';
-                    return `${idx + 1}. ${t.icon} *${p.name}* — ${rIcon} ${p.role} _(Tier ${p.tier})_`;
+                    const t = TIERS[p.tier] || TIERS[3];
+                    return `${idx + 1}. ${t.icon} *${p.name}* _(${t.label} • ${t.points}pt${t.points > 1 ? 's' : ''})_`;
                 });
                 return `*${name.toUpperCase()}* (${roster.length} Players | ⚡ ${rating} Pts)\n` + lines.join('\n');
             };
@@ -1266,8 +1263,7 @@
             grid.innerHTML = '';
 
             sorted.forEach(p => {
-                const t = TIERS[p.tier] || TIERS[2];
-                const rIcon = ROLE_ICONS[p.role] || '🏏';
+                const t = TIERS[p.tier] || TIERS[3];
 
                 const card = document.createElement('div');
                 card.className = `tap-card cursor-pointer p-3 rounded-2xl border flex items-center justify-between gap-2.5 ${
@@ -1282,8 +1278,8 @@
                         <span class="text-base shrink-0">${t.icon}</span>
                         <div class="min-w-0">
                             <div class="font-extrabold text-sm text-white truncate">${escapeHtml(p.name)}</div>
-                            <div class="text-[11px] text-slate-400 font-medium truncate">
-                                ${rIcon} ${escapeHtml(p.role)} • <span class="font-bold text-slate-300">Tier ${p.tier} (${t.label})</span>
+                            <div class="text-[11px] text-slate-400 font-semibold truncate">
+                                ${t.label} • <span class="text-slate-300 font-bold">${t.points} pt${t.points > 1 ? 's' : ''}</span>
                             </div>
                         </div>
                     </div>
@@ -1320,10 +1316,10 @@
                 const smallLen = match.teamAGetsSmall ? match.teamA.length : match.teamB.length;
                 const largeLen = match.teamAGetsSmall ? match.teamB.length : match.teamA.length;
                 badge.textContent = `⚖️ ${smallLen}v${largeLen} Balanced Odd Split`;
-                text.textContent = `${smallName} (${smallLen} players) is balanced with higher average tier weight against ${largeName} (${largeLen} players).`;
+                text.textContent = `${smallName} (${smallLen} players) is balanced with higher average category points against ${largeName} (${largeLen} players).`;
             } else {
                 badge.textContent = `⚖️ Balanced Split (Δ ${match.ratingDiff} Pt${match.ratingDiff === 1 ? '' : 's'})`;
-                text.textContent = `Squads are balanced by Tier strength (T1=3pts, T2=2pts, T3=1pt) and player roles.`;
+                text.textContent = `Squads are balanced by category power points (👑5, 🔥4, ⚔️3, 🛡️2, 🐣1).`;
             }
 
             renderTeamColumn('team-a-card', match.teamAName, match.teamA, match.ratingA, 'emerald');
@@ -1339,8 +1335,7 @@
                 : 'bg-amber-500/15 border-amber-500/35 text-amber-300';
 
             const rows = roster.map((p, idx) => {
-                const t = TIERS[p.tier] || TIERS[2];
-                const rIcon = ROLE_ICONS[p.role] || '🏏';
+                const t = TIERS[p.tier] || TIERS[3];
                 return `
                     <div class="flex items-center justify-between py-2.5 px-3 rounded-2xl bg-slate-950/75 border border-slate-800/85 gap-2">
                         <div class="flex items-center gap-2.5 min-w-0">
@@ -1348,11 +1343,10 @@
                             <span class="text-base shrink-0">${t.icon}</span>
                             <div class="min-w-0">
                                 <div class="font-extrabold text-sm text-white truncate">${escapeHtml(p.name)}</div>
-                                <div class="text-[11px] text-slate-400">${rIcon} ${escapeHtml(p.role)}</div>
                             </div>
                         </div>
                         <span class="px-2 py-0.5 rounded-lg text-[10px] font-extrabold border ${t.badgeClass} shrink-0">
-                            T${p.tier} ${t.label}
+                            ${t.icon} ${t.label} (${t.points}p)
                         </span>
                     </div>
                 `;
@@ -1419,7 +1413,10 @@
                                 <div class="flex flex-col sm:flex-row gap-2">
                                     <select id="claim-player-select" class="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-900 border border-emerald-500/30 text-xs sm:text-sm font-extrabold text-white focus:outline-none focus:border-emerald-400">
                                         <option value="">-- Choose Your Real Name --</option>
-                                        ${claimable.map(p => `<option value="${p.id}">${escapeHtml(p.name)} (Tier ${p.tier})</option>`).join('')}
+                                        ${claimable.map(p => {
+                                            const t = TIERS[p.tier] || TIERS[3];
+                                            return `<option value="${p.id}">${escapeHtml(p.name)} (${t.icon} ${t.label})</option>`;
+                                        }).join('')}
                                     </select>
                                     <button type="button" onclick="handleClaimDeviceForPlayer()"
                                         class="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs sm:text-sm transition shrink-0">
@@ -1526,7 +1523,7 @@
                 });
 
                 listContainer.innerHTML = sortedPlayers.map(p => {
-                    const t = TIERS[p.tier] || TIERS[2];
+                    const t = TIERS[p.tier] || TIERS[3];
                     const tally = tallies[p.id] || { up: 0, down: 0, net: 0 };
                     const isSelf = selectedVoterId === p.id;
                     const myDraft = canCastVotes ? (draftVotes[p.id] || 0) : 0;
@@ -1568,7 +1565,7 @@
                                 <div class="min-w-0">
                                     <div class="flex items-center gap-1.5 flex-wrap">
                                         <span class="font-extrabold text-sm text-white truncate">${escapeHtml(p.name)}</span>
-                                        <span class="px-1.5 py-0.5 rounded text-[10px] font-extrabold border ${t.badgeClass}">T${p.tier}</span>
+                                        <span class="px-1.5 py-0.5 rounded text-[10px] font-extrabold border ${t.badgeClass}">${t.icon} ${t.label}</span>
                                         ${isSelf ? '<span class="px-1.5 py-0.5 rounded text-[9px] font-black bg-slate-800 text-slate-300">YOU</span>' : ''}
                                     </div>
                                     <div class="flex items-center gap-2.5 text-xs mt-1">
@@ -1658,20 +1655,12 @@
                         <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
                             <input type="text" value="${escapeHtml(p.name)}" maxlength="22"
                                 onchange="captainUpdatePlayerField('${p.id}', 'name', this.value)"
-                                class="sm:col-span-4 px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs font-extrabold text-white focus:outline-none focus:border-amber-400">
+                                class="sm:col-span-6 px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs font-extrabold text-white focus:outline-none focus:border-amber-400">
                             <select onchange="captainUpdatePlayerField('${p.id}', 'tier', this.value)"
-                                class="sm:col-span-4 px-2.5 py-2 rounded-xl bg-slate-900 border border-amber-400/35 text-xs font-bold text-amber-200 focus:outline-none focus:border-amber-400">
-                                ${[1, 2, 3].map(lvl => `
+                                class="sm:col-span-6 px-2.5 py-2 rounded-xl bg-slate-900 border border-amber-400/35 text-xs font-bold text-amber-200 focus:outline-none focus:border-amber-400">
+                                ${[1, 2, 3, 4, 5].map(lvl => `
                                     <option value="${lvl}" ${Number(p.tier) === lvl ? 'selected' : ''}>
-                                        Tier ${lvl} — ${TIERS[lvl].label} ${TIERS[lvl].icon}
-                                    </option>
-                                `).join('')}
-                            </select>
-                            <select onchange="captainUpdatePlayerField('${p.id}', 'role', this.value)"
-                                class="sm:col-span-4 px-2.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs font-bold text-slate-200 focus:outline-none focus:border-amber-400">
-                                ${['Batsman', 'Bowler', 'All-Rounder', 'Wicketkeeper'].map(role => `
-                                    <option value="${role}" ${p.role === role ? 'selected' : ''}>
-                                        ${ROLE_ICONS[role]} ${role}
+                                        ${TIERS[lvl].icon} ${TIERS[lvl].label} (${TIERS[lvl].points} pt${TIERS[lvl].points > 1 ? 's' : ''})
                                     </option>
                                 `).join('')}
                             </select>
