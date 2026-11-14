@@ -22,17 +22,17 @@
     </script>
     <style>
         body {
-            background-color: #050f0c;
+            background-color: #0b1120;
             background-image:
-                radial-gradient(circle at 50% -15%, rgba(16, 185, 129, 0.18) 0%, transparent 55%),
-                radial-gradient(circle at 85% 95%, rgba(245, 158, 11, 0.1) 0%, transparent 50%);
+                radial-gradient(circle at 50% -15%, rgba(16, 185, 129, 0.16) 0%, transparent 55%),
+                radial-gradient(circle at 85% 95%, rgba(245, 158, 11, 0.09) 0%, transparent 50%);
             min-height: 100vh;
         }
         .glass-panel {
-            background: rgba(11, 25, 21, 0.85);
+            background: rgba(17, 24, 39, 0.88);
             backdrop-filter: blur(14px);
             -webkit-backdrop-filter: blur(14px);
-            border: 1px solid rgba(52, 211, 153, 0.16);
+            border: 1px solid rgba(52, 211, 153, 0.15);
         }
         .tap-card {
             transition: transform 0.14s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.2s, border-color 0.2s;
@@ -50,8 +50,8 @@
             animation: slideUp 0.24s cubic-bezier(0.22, 1, 0.36, 1) forwards;
         }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #050f0c; }
-        ::-webkit-scrollbar-thumb { background: #133b2f; border-radius: 9999px; }
+        ::-webkit-scrollbar-track { background: #0b1120; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 9999px; }
     </style>
 </head>
 <body class="text-slate-100 antialiased selection:bg-emerald-400 selection:text-slate-950 pb-24">
@@ -64,8 +64,8 @@
         </div>
     </div>
 
-    <!-- Captain PIN Modal -->
-    <div id="pin-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <!-- Secret Captain PIN Modal (PIN is strictly hidden) -->
+    <div id="pin-modal" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="glass-panel w-full max-w-sm rounded-3xl p-6 border border-amber-400/35 shadow-2xl animate-reveal">
             <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center gap-2">
@@ -75,24 +75,24 @@
                 <button type="button" onclick="closePinModal()" class="w-8 h-8 rounded-full bg-slate-900 text-slate-400 hover:text-white flex items-center justify-center text-sm font-bold">✕</button>
             </div>
             <p class="text-xs text-slate-300 mb-4 leading-relaxed">
-                Enter the Captain PIN (<span class="text-amber-300 font-bold">5020</span>) to manage squad tiers, roles, roster edits, and voting round approvals.
+                Enter the secret Captain PIN to manage squad controls, device bindings, and voting rounds.
             </p>
             <form onsubmit="submitCaptainPin(event)" class="space-y-3">
-                <input id="pin-input" type="password" inputmode="numeric" maxlength="8" placeholder="Enter PIN"
-                    class="w-full px-4 py-3 rounded-2xl bg-slate-950 border border-amber-400/35 text-center text-lg font-black tracking-[0.35em] text-amber-300 placeholder-slate-600 placeholder:tracking-normal placeholder:text-xs placeholder:font-medium focus:outline-none focus:border-amber-400">
-                <p id="pin-error" class="hidden text-xs text-rose-400 font-semibold text-center">Incorrect PIN. Try again.</p>
+                <input id="pin-input" type="password" inputmode="numeric" maxlength="8" placeholder="••••"
+                    class="w-full px-4 py-3 rounded-2xl bg-slate-950 border border-amber-400/35 text-center text-xl font-black tracking-[0.45em] text-amber-300 placeholder-slate-600 focus:outline-none focus:border-amber-400">
+                <p id="pin-error" class="hidden text-xs text-rose-400 font-semibold text-center">Incorrect PIN. Access denied.</p>
                 <button type="submit" class="w-full py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-sm shadow-lg shadow-amber-500/20 transition">
-                    Unlock Captain Controls
+                    Unlock
                 </button>
             </form>
         </div>
     </div>
 
-    <!-- Custom Confirm Modal (No browser confirm/alert) -->
-    <div id="confirm-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <!-- Custom Confirm Modal -->
+    <div id="confirm-modal" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="glass-panel w-full max-w-sm rounded-3xl p-6 border border-emerald-400/30 shadow-2xl animate-reveal">
             <h3 id="confirm-title" class="text-lg font-black text-white mb-2">Confirm Action</h3>
-            <p id="confirm-message" class="text-xs text-slate-300 mb-5 leading-relaxed"></p>
+            <p id="confirm-message" class="text-xs text-slate-300 mb-5 leading-relaxed whitespace-pre-line"></p>
             <div class="flex items-center gap-2.5">
                 <button type="button" onclick="closeConfirmModal()" class="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition">
                     Cancel
@@ -118,10 +118,10 @@
                             Pitch<span class="text-emerald-400">Perfect</span>
                         </h1>
                         <span id="sync-badge" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-amber-500/15 text-amber-300 border border-amber-500/30 shrink-0">
-                            🟠 Connecting...
+                            🟡 Connecting...
                         </span>
                     </div>
-                    <p class="text-[11px] text-slate-400 font-medium truncate">15-Player Squad • Balanced Draw &amp; Live Voting</p>
+                    <p class="text-[11px] text-slate-400 font-medium truncate">15-Player Squad • Balanced Draw &amp; Anonymous Voting</p>
                 </div>
             </div>
 
@@ -133,18 +133,28 @@
             </button>
         </div>
 
-        <!-- Two Main Tabs: Matchday & Rankings & Votes -->
-        <div class="max-w-4xl mx-auto mt-3 grid grid-cols-2 gap-2 p-1 rounded-2xl bg-slate-950/85 border border-emerald-500/15">
-            <button type="button" id="tab-matchday" onclick="switchTab('matchday')"
-                class="py-2.5 px-3 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center justify-center gap-1.5 bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20">
+        <!-- Mobile-First Navigation Tabs -->
+        <div id="nav-tabs-grid" class="max-w-4xl mx-auto mt-3 grid grid-cols-3 gap-1.5 p-1 rounded-2xl bg-slate-950/90 border border-emerald-500/15">
+            <button type="button" id="tab-attendance" onclick="switchTab('attendance')"
+                class="py-2.5 px-2 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center justify-center gap-1.5 bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20">
+                <span>📋</span>
+                <span>Attendance</span>
+            </button>
+            <button type="button" id="tab-teams" onclick="switchTab('teams')"
+                class="py-2.5 px-2 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center justify-center gap-1.5 text-slate-300 hover:text-white">
                 <span>⚡</span>
-                <span>Matchday</span>
+                <span>Teams</span>
             </button>
             <button type="button" id="tab-voting" onclick="switchTab('voting')"
-                class="py-2.5 px-3 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center justify-center gap-1.5 text-slate-300 hover:text-white">
+                class="py-2.5 px-2 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center justify-center gap-1.5 text-slate-300 hover:text-white">
                 <span>🗳️</span>
-                <span>Rankings &amp; Votes</span>
+                <span>Voting</span>
                 <span id="ballots-count-pill" class="px-1.5 py-0.5 rounded-full text-[10px] bg-slate-800 text-emerald-300 font-black">0</span>
+            </button>
+            <button type="button" id="tab-captain" onclick="switchTab('captain')"
+                class="hidden py-2.5 px-2 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center justify-center gap-1.5 text-amber-300 hover:text-amber-200">
+                <span>🛡️</span>
+                <span>Captain</span>
             </button>
         </div>
     </header>
@@ -152,77 +162,24 @@
     <main class="max-w-4xl mx-auto px-4 pt-5 space-y-6">
 
         <!-- ===================================================================== -->
-        <!-- CAPTAIN COMMAND CENTER (VISIBLE WHEN UNLOCKED WITH PIN 5020)          -->
+        <!-- TAB 1: ATTENDANCE CHECK-IN                                            -->
         <!-- ===================================================================== -->
-        <section id="captain-panel" class="hidden glass-panel rounded-3xl p-4 sm:p-6 border border-amber-400/45 shadow-2xl shadow-amber-950/30 animate-reveal space-y-5">
-            <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-amber-400/20">
-                <div>
-                    <div class="flex items-center gap-2">
-                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-400 text-slate-950">Captain Mode Active</span>
-                        <h2 class="text-base sm:text-lg font-black text-white">Squad &amp; Round Governance</h2>
-                    </div>
-                    <p class="text-xs text-amber-100/75 mt-1">Edit player tiers (1–5), roles, names, or approve the active voting round.</p>
-                </div>
-                <button type="button" onclick="lockCaptainMode()" class="px-3.5 py-2 rounded-xl text-xs font-extrabold bg-amber-400 hover:bg-amber-300 text-slate-950 transition">
-                    Lock Captain Mode
-                </button>
-            </div>
-
-            <!-- Add New Player Form -->
-            <form onsubmit="captainAddPlayer(event)" class="p-3.5 rounded-2xl bg-slate-950/75 border border-slate-800 space-y-2.5">
-                <label class="block text-xs font-extrabold uppercase tracking-wider text-emerald-300">+ Add Squad Player</label>
-                <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
-                    <input id="new-player-name" type="text" maxlength="22" placeholder="Player name..." required
-                        class="sm:col-span-5 px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-400">
-                    <select id="new-player-tier" class="sm:col-span-3 px-2.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs font-bold text-slate-200 focus:outline-none focus:border-emerald-400">
-                        <option value="5">5 - Elite 👑</option>
-                        <option value="4">4 - Pro 🔥</option>
-                        <option value="3" selected>3 - Contender ⚡</option>
-                        <option value="2">2 - Rising 🛡️</option>
-                        <option value="1">1 - Rookie 🌱</option>
-                    </select>
-                    <select id="new-player-role" class="sm:col-span-3 px-2.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs font-bold text-slate-200 focus:outline-none focus:border-emerald-400">
-                        <option value="Batsman">🏏 Batsman</option>
-                        <option value="Bowler">🎯 Bowler</option>
-                        <option value="All-Rounder" selected>⭐ All-Rounder</option>
-                        <option value="Wicketkeeper">🧤 Wicketkeeper</option>
-                    </select>
-                    <button type="submit" class="sm:col-span-1 px-3 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs transition">
-                        Add
-                    </button>
-                </div>
-            </form>
-
-            <!-- Editable Roster List -->
-            <div>
-                <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-2.5">Edit Roster Tiers, Roles &amp; Names</h3>
-                <div id="captain-roster-list" class="space-y-2 max-h-96 overflow-y-auto pr-1">
-                    <!-- Rendered dynamically -->
-                </div>
-            </div>
-        </section>
-
-        <!-- ===================================================================== -->
-        <!-- TAB 1: MATCHDAY (ATTENDANCE + BALANCED TEAM GENERATOR + WHATSAPP)     -->
-        <!-- ===================================================================== -->
-        <div id="view-matchday" class="space-y-6">
-
-            <!-- Attendance Check-In Section -->
+        <div id="view-attendance" class="space-y-5 animate-reveal">
             <section class="glass-panel rounded-3xl p-4 sm:p-6 shadow-xl">
                 <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-emerald-500/15">
                     <div>
                         <div class="flex items-center gap-2">
-                            <h2 class="text-base sm:text-lg font-black text-white">1. Matchday Attendance</h2>
+                            <h2 class="text-base sm:text-lg font-black text-white">Matchday Attendance</h2>
                             <span id="available-count-badge" class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/35">
-                                15 Available
+                                15 / 15 Available
                             </span>
                         </div>
-                        <p class="text-xs text-slate-400 mt-0.5">Tap any player card to mark them Available or Out for today's game.</p>
+                        <p class="text-xs text-slate-400 mt-0.5">Tap any player card to toggle Available or Unavailable for today's game.</p>
                     </div>
 
                     <div class="flex items-center gap-2">
                         <button type="button" onclick="setAllAttendance(true)" class="px-3 py-2 rounded-xl text-xs font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/25 hover:bg-emerald-500/25 transition">
-                            All In
+                            Select All
                         </button>
                         <button type="button" onclick="setAllAttendance(false)" class="px-3 py-2 rounded-xl text-xs font-bold bg-slate-800/90 text-slate-300 border border-slate-700 hover:bg-slate-700 transition">
                             Clear
@@ -234,10 +191,32 @@
                 <div id="attendance-grid" class="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
                     <!-- Populated via JS -->
                 </div>
-            </section>
 
-            <!-- Balanced Team Generator Controls -->
+                <!-- Quick CTA to Teams Tab -->
+                <div class="mt-5 pt-4 border-t border-slate-800/80 flex justify-end">
+                    <button type="button" onclick="switchTab('teams'); generateBalancedTeams(false);"
+                        class="w-full sm:w-auto px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-xs sm:text-sm shadow-lg shadow-emerald-500/20 transition flex items-center justify-center gap-2">
+                        <span>⚡ Generate Balanced Teams from Available Squad</span>
+                    </button>
+                </div>
+            </section>
+        </div>
+
+        <!-- ===================================================================== -->
+        <!-- TAB 2: BALANCED TEAM GENERATOR + WHATSAPP SHARE                       -->
+        <!-- ===================================================================== -->
+        <div id="view-teams" class="hidden space-y-5 animate-reveal">
             <section class="glass-panel rounded-3xl p-4 sm:p-5 shadow-xl space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                        <h2 class="text-base sm:text-lg font-black text-white">Balanced Team Generator</h2>
+                        <p class="text-xs text-slate-400">Balances Tier weights (T1=3pts, T2=2pts, T3=1pt) and roles across both squads.</p>
+                    </div>
+                    <span id="teams-available-pill" class="px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                        15 Players Ready
+                    </span>
+                </div>
+
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-[11px] font-extrabold uppercase tracking-wider text-emerald-300/80 mb-1">Team A Name</label>
@@ -252,7 +231,7 @@
                 </div>
 
                 <button type="button" onclick="generateBalancedTeams(false)"
-                    class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-emerald-500 via-emerald-400 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-base sm:text-lg tracking-tight shadow-xl shadow-emerald-500/25 transition active:scale-[0.99] flex items-center justify-center gap-2">
+                    class="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-emerald-500 via-emerald-400 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-sm sm:text-base tracking-tight shadow-xl shadow-emerald-500/25 transition active:scale-[0.99] flex items-center justify-center gap-2">
                     <span>⚡ Generate Balanced Teams</span>
                 </button>
             </section>
@@ -271,7 +250,7 @@
                         <button type="button" onclick="generateBalancedTeams(true)"
                             class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs sm:text-sm shadow-md shadow-amber-500/15 transition flex items-center justify-center gap-1.5">
                             <span>🔄</span>
-                            <span>Reshuffle Balanced</span>
+                            <span>Reshuffle</span>
                         </button>
                         <button type="button" onclick="copyTeamsForWhatsApp()"
                             class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-200 border border-emerald-400/35 font-extrabold text-xs sm:text-sm transition flex items-center justify-center gap-1.5">
@@ -290,126 +269,164 @@
         </div>
 
         <!-- ===================================================================== -->
-        <!-- TAB 2: RANKINGS & VOTES (DRAFT -> CONFIRM/LOCK -> CAPTAIN APPROVAL)   -->
+        <!-- TAB 3: ZERO-KNOWLEDGE ANONYMOUS VOTING & LIVE TALLIES                 -->
         <!-- ===================================================================== -->
         <div id="view-voting" class="hidden space-y-5 animate-reveal">
 
-            <!-- Voting Round Header & Captain Approval Controls -->
+            <!-- Voting Header & Device-Bound Identity Selector -->
             <section class="glass-panel rounded-3xl p-4 sm:p-6 shadow-xl space-y-4">
                 <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-emerald-500/15">
                     <div>
                         <div class="flex items-center gap-2">
-                            <h2 class="text-base sm:text-lg font-black text-white">🗳️ Promotion &amp; Relegation Ballot</h2>
+                            <h2 class="text-base sm:text-lg font-black text-white">🗳️ Promotion &amp; Relegation Voting</h2>
                             <span id="round-number-badge" class="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                                 Round #1
                             </span>
                         </div>
                         <p class="text-xs text-slate-300 mt-1 leading-relaxed">
-                            Select your name, draft your <span class="text-emerald-400 font-bold">▲ Promote (+1 Tier)</span> and/or <span class="text-rose-400 font-bold">▼ Relegate (-1 Tier)</span> picks, then lock your ballot.
+                            100% anonymous tallies. Cast <span class="text-emerald-400 font-bold">▲ Upvote</span>, <span class="text-slate-300 font-bold">— Neutral</span>, or <span class="text-rose-400 font-bold">▼ Downvote</span> for teammates.
                         </p>
                     </div>
 
-                    <!-- Captain Approval Actions (Shown when Captain Mode is active) -->
-                    <div id="captain-round-controls" class="hidden flex flex-wrap items-center gap-2">
-                        <button type="button" onclick="confirmApproveAndApplyRound()"
-                            class="px-3.5 py-2 rounded-xl text-xs font-black bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-md shadow-emerald-500/20 transition">
-                            ✅ Approve &amp; Apply Round Results
-                        </button>
-                        <button type="button" onclick="confirmResetRound()"
-                            class="px-3 py-2 rounded-xl text-xs font-extrabold bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/35 transition">
-                            Reset Round
-                        </button>
+                    <div class="px-3 py-1.5 rounded-2xl bg-slate-950/90 border border-emerald-500/25 text-xs font-extrabold text-emerald-300">
+                        <span id="participation-counter">Ballots Cast: 0 / 15 players</span>
                     </div>
                 </div>
 
-                <!-- Step 1: Voter Identity Selector -->
-                <div class="p-3.5 sm:p-4 rounded-2xl bg-slate-950/85 border border-slate-800 space-y-3">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                        <label for="voter-select" class="text-xs font-extrabold uppercase tracking-wider text-emerald-300">
-                            Step 1: Who is voting?
-                        </label>
-                        <span id="voter-status-pill" class="text-[11px] font-bold text-slate-400">
-                            Select your name to start drafting
-                        </span>
+                <!-- Device-Bound Identity Box -->
+                <div id="device-identity-container" class="p-4 rounded-2xl bg-slate-950/90 border border-slate-800 space-y-3">
+                    <!-- Populated dynamically based on currentDeviceUid & deviceBindings -->
+                </div>
+
+                <!-- Public Anonymous Scoreboard & Ballot Controls -->
+                <div class="pt-1 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-400">
+                            Live Anonymous Standings (Sorted by Net Score)
+                        </h3>
+                        <span class="text-[11px] text-slate-500 font-semibold">Voter identities are hidden</span>
                     </div>
-
-                    <select id="voter-select" onchange="handleVoterSelection(this.value)"
-                        class="w-full px-3.5 py-3 rounded-xl bg-slate-900 border border-emerald-500/30 text-sm font-extrabold text-white focus:outline-none focus:border-emerald-400">
-                        <option value="">-- Choose Your Name --</option>
-                    </select>
-
-                    <!-- Draft / Locked Ballot Status Banner -->
-                    <div id="ballot-status-box" class="pt-1">
+                    <div id="rankings-vote-list" class="space-y-2.5">
                         <!-- Rendered dynamically -->
                     </div>
                 </div>
-
-                <!-- Live Tallied Standings & Ballot Selection Cards -->
-                <div id="rankings-vote-list" class="space-y-5 pt-1">
-                    <!-- Rendered dynamically -->
-                </div>
             </section>
+        </div>
 
-            <!-- Past Approved Rounds Archive -->
-            <section id="round-history-section" class="hidden glass-panel rounded-3xl p-4 sm:p-6 shadow-xl space-y-3">
-                <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-400">📜 Approved Voting Round History</h3>
-                <div id="round-history-list" class="space-y-2.5">
-                    <!-- Rendered dynamically -->
+        <!-- ===================================================================== -->
+        <!-- TAB 4: SECRET CAPTAIN COMMAND CENTER                                  -->
+        <!-- ===================================================================== -->
+        <div id="view-captain" class="hidden space-y-5 animate-reveal">
+            <section class="glass-panel rounded-3xl p-4 sm:p-6 border border-amber-400/40 shadow-2xl space-y-6">
+                <!-- Header -->
+                <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-amber-400/20">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-400 text-slate-950">Captain Active</span>
+                            <h2 class="text-base sm:text-lg font-black text-white">Captain Governance &amp; Anti-Prank Controls</h2>
+                        </div>
+                        <p class="text-xs text-slate-300 mt-1">Manage device locks, void prank ballots, reset rounds, or edit player tiers.</p>
+                    </div>
+                    <button type="button" onclick="lockCaptainMode()" class="px-3.5 py-2 rounded-xl text-xs font-extrabold bg-amber-400 hover:bg-amber-300 text-slate-950 transition">
+                        Lock Captain Mode
+                    </button>
+                </div>
+
+                <!-- Round & Device Security Controls -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <!-- Voting Round Control -->
+                    <div class="p-4 rounded-2xl bg-slate-950/85 border border-slate-800 flex flex-col justify-between gap-3">
+                        <div>
+                            <div class="text-xs font-extrabold uppercase tracking-wider text-emerald-300">Weekly Voting Round</div>
+                            <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+                                Clears all submitted ballots for Round #<span id="cap-round-num">1</span> and opens the next round while keeping everyone's legitimate phone links intact.
+                            </p>
+                        </div>
+                        <button type="button" onclick="confirmStartNewVotingRound()"
+                            class="w-full py-2.5 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs transition shadow-md shadow-emerald-500/20">
+                            🔄 Start New Voting Round
+                        </button>
+                    </div>
+
+                    <!-- Device Claim Freeze & Nuclear Reset -->
+                    <div class="p-4 rounded-2xl bg-slate-950/85 border border-slate-800 flex flex-col justify-between gap-3">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <div class="text-xs font-extrabold uppercase tracking-wider text-amber-300">Freeze Device Claims</div>
+                                <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+                                    When ON, unclaimed names cannot be claimed by new phones unless you unlock them.
+                                </p>
+                            </div>
+                            <button type="button" id="freeze-claims-toggle" onclick="toggleFreezeClaims()"
+                                class="px-3 py-1.5 rounded-full text-xs font-black border transition shrink-0 bg-slate-900 border-slate-700 text-slate-400">
+                                OFF
+                            </button>
+                        </div>
+                        <button type="button" onclick="confirmResetAllDeviceBindings()"
+                            class="w-full py-2.5 px-4 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/35 font-extrabold text-xs transition">
+                            ⚠️ Reset All Device Bindings
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Shared Pairs Info Banner -->
+                <div class="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-400/25 text-xs text-amber-100/90 flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                        <span class="font-extrabold text-amber-300">Shared-Device Exceptions Active:</span>
+                        <span>[Hamza &amp; Subhan] and [Sherry &amp; Baby] can each vote once from their shared pair device.</span>
+                    </div>
+                    <span id="cap-linked-summary" class="px-2.5 py-1 rounded-lg bg-slate-950/80 text-amber-300 font-extrabold text-[11px]">
+                        0 / 15 Devices Linked
+                    </span>
+                </div>
+
+                <!-- 15-Player Roster, Tier & Device Binding Manager -->
+                <div>
+                    <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-3">
+                        Squad Roster, Tiers &amp; Device Bindings
+                    </h3>
+                    <div id="captain-roster-list" class="space-y-2.5">
+                        <!-- Rendered dynamically -->
+                    </div>
                 </div>
             </section>
         </div>
 
     </main>
 
-    <!-- Firebase SDK v11.6.1 -->
+    <!-- Firebase Modular SDK v11.6.1 -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // =====================================================================
-        // 1. TIER & ROLE CONFIGURATION + DEFAULT 15-PLAYER ROSTER
+        // 1. CONFIGURATION, TIERS, SHARED PAIRS & DEFAULT 15-PLAYER ROSTER
         // =====================================================================
         const TIERS = {
-            5: {
-                level: 5,
+            1: {
+                level: 1,
                 label: 'Elite',
+                points: 3,
                 icon: '👑',
                 badgeClass: 'bg-amber-500/20 text-amber-300 border-amber-400/45',
-                headerClass: 'text-amber-300',
-                cardActiveClass: 'bg-amber-500/12 border-amber-400/55 shadow-sm shadow-amber-500/10'
-            },
-            4: {
-                level: 4,
-                label: 'Pro',
-                icon: '🔥',
-                badgeClass: 'bg-rose-500/20 text-rose-300 border-rose-400/40',
-                headerClass: 'text-rose-300',
-                cardActiveClass: 'bg-rose-500/12 border-rose-400/50 shadow-sm shadow-rose-500/10'
-            },
-            3: {
-                level: 3,
-                label: 'Contender',
-                icon: '⚡',
-                badgeClass: 'bg-sky-500/20 text-sky-300 border-sky-400/40',
-                headerClass: 'text-sky-300',
-                cardActiveClass: 'bg-sky-500/12 border-sky-400/50 shadow-sm shadow-sky-500/10'
+                cardActiveClass: 'bg-amber-500/12 border-amber-400/50 shadow-sm shadow-amber-500/10'
             },
             2: {
                 level: 2,
-                label: 'Rising',
-                icon: '🛡️',
+                label: 'Core',
+                points: 2,
+                icon: '🔥',
                 badgeClass: 'bg-emerald-500/20 text-emerald-300 border-emerald-400/40',
-                headerClass: 'text-emerald-300',
-                cardActiveClass: 'bg-emerald-500/12 border-emerald-400/50 shadow-sm shadow-emerald-500/10'
+                cardActiveClass: 'bg-emerald-500/12 border-emerald-400/45 shadow-sm shadow-emerald-500/10'
             },
-            1: {
-                level: 1,
-                label: 'Rookie',
-                icon: '🌱',
-                badgeClass: 'bg-slate-500/20 text-slate-300 border-slate-400/35',
-                headerClass: 'text-slate-300',
-                cardActiveClass: 'bg-teal-500/12 border-teal-400/45'
+            3: {
+                level: 3,
+                label: 'Developing',
+                points: 1,
+                icon: '⚡',
+                badgeClass: 'bg-sky-500/20 text-sky-300 border-sky-400/40',
+                cardActiveClass: 'bg-sky-500/12 border-sky-400/45 shadow-sm shadow-sky-500/10'
             }
         };
 
@@ -420,54 +437,75 @@
             'Wicketkeeper': '🧤'
         };
 
+        // Shared-device pairs allowed to share one phone (1 vote each)
+        const SHARED_PAIRS = [
+            ['Hamza', 'Subhan'],
+            ['Sherry', 'Baby']
+        ];
+
         const DEFAULT_PLAYERS = [
-            { id: 'p_ammar', name: 'Ammar', tier: 5, role: 'All-Rounder', available: true },
-            { id: 'p_abdullah', name: 'Abdullah', tier: 4, role: 'Batsman', available: true },
-            { id: 'p_umair', name: 'Umair', tier: 4, role: 'All-Rounder', available: true },
-            { id: 'p_faiq', name: 'Faiq', tier: 4, role: 'Bowler', available: true },
-            { id: 'p_sherry', name: 'Sherry', tier: 4, role: 'Wicketkeeper', available: true },
-            { id: 'p_zazi', name: 'Zazi', tier: 4, role: 'Batsman', available: true },
-            { id: 'p_baby', name: 'Baby', tier: 3, role: 'All-Rounder', available: true },
-            { id: 'p_suleman', name: 'Suleman', tier: 3, role: 'Bowler', available: true },
-            { id: 'p_hamza', name: 'Hamza', tier: 3, role: 'Batsman', available: true },
-            { id: 'p_subhan', name: 'Subhan', tier: 2, role: 'Bowler', available: true },
-            { id: 'p_jalal', name: 'Jalal', tier: 2, role: 'Wicketkeeper', available: true },
-            { id: 'p_shahzain', name: 'Shahzain', tier: 1, role: 'Batsman', available: true },
-            { id: 'p_ayan', name: 'Ayan', tier: 1, role: 'Bowler', available: true },
-            { id: 'p_rafay', name: 'Rafay', tier: 1, role: 'All-Rounder', available: true },
-            { id: 'p_obaid', name: 'Obaid', tier: 1, role: 'Batsman', available: true }
+            { id: 'p_hamza', name: 'Hamza', role: 'Batsman', tier: 1, available: true },
+            { id: 'p_subhan', name: 'Subhan', role: 'Bowler', tier: 2, available: true },
+            { id: 'p_sherry', name: 'Sherry', role: 'Wicketkeeper', tier: 1, available: true },
+            { id: 'p_baby', name: 'Baby', role: 'All-Rounder', tier: 2, available: true },
+            { id: 'p_suleiman', name: 'Suleiman', role: 'Bowler', tier: 2, available: true },
+            { id: 'p_ali', name: 'Ali', role: 'All-Rounder', tier: 1, available: true },
+            { id: 'p_bilal', name: 'Bilal', role: 'Batsman', tier: 1, available: true },
+            { id: 'p_daniyal', name: 'Daniyal', role: 'Bowler', tier: 1, available: true },
+            { id: 'p_fahad', name: 'Fahad', role: 'All-Rounder', tier: 2, available: true },
+            { id: 'p_haris', name: 'Haris', role: 'Bowler', tier: 2, available: true },
+            { id: 'p_kamran', name: 'Kamran', role: 'Batsman', tier: 2, available: true },
+            { id: 'p_omar', name: 'Omar', role: 'Wicketkeeper', tier: 3, available: true },
+            { id: 'p_saad', name: 'Saad', role: 'Batsman', tier: 3, available: true },
+            { id: 'p_talha', name: 'Talha', role: 'Bowler', tier: 3, available: true },
+            { id: 'p_usman', name: 'Usman', role: 'All-Rounder', tier: 3, available: true }
         ];
 
         const CAPTAIN_PIN = '5020';
-        const LOCAL_STORAGE_KEY = 'pitchperfect_cricket_squad_v2';
-        const VOTER_IDENTITY_KEY = 'pitchperfect_selected_voter_v2';
+        const LOCAL_STORAGE_KEY = 'pitchperfect_cricket_state_v3';
+        const LOCAL_DEVICE_FALLBACK_KEY = 'pitchperfect_local_device_uid_v3';
 
         // =====================================================================
-        // 2. STATE & FIREBASE INITIALIZATION
+        // 2. APPLICATION STATE & FIREBASE REAL-TIME SYNC
         // =====================================================================
         let state = {
             players: JSON.parse(JSON.stringify(DEFAULT_PLAYERS)),
             roundNumber: 1,
-            // submittedBallots: { [voterId]: { promoteId: string|null, relegateId: string|null, lockedAt: number } }
-            submittedBallots: {},
-            roundHistory: [],
+            // deviceBindings: { [playerId]: deviceUid }
+            deviceBindings: {},
+            // ballots: { [voterPlayerId]: { [targetPlayerId]: 1 | -1 } }
+            // Never displayed by voter identity in UI; used strictly to prevent duplicate votes & allow Captain voiding
+            ballots: {},
+            freezeClaims: false,
             currentMatchup: null
         };
 
-        // Draft state on current device before user taps "Confirm & Lock Ballot"
-        let selectedVoterId = localStorage.getItem(VOTER_IDENTITY_KEY) || '';
-        let draftPromoteId = null;
-        let draftRelegateId = null;
-
+        let activeTab = 'attendance';
         let isCaptainUnlocked = false;
+        let currentDeviceUid = null;
+        let selectedVoterId = '';
+        // Local draft choices for current voter: { [targetPlayerId]: 1 | -1 | 0 }
+        let draftVotes = {};
         let lastSplitSignature = null;
         let pendingConfirmCallback = null;
 
         let db = null;
         let auth = null;
-        let currentUser = null;
         let squadDocRef = null;
         let isCloudConnected = false;
+
+        function getOrCreateFallbackDeviceUid() {
+            try {
+                let uid = localStorage.getItem(LOCAL_DEVICE_FALLBACK_KEY);
+                if (!uid) {
+                    uid = 'dev_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+                    localStorage.setItem(LOCAL_DEVICE_FALLBACK_KEY, uid);
+                }
+                return uid;
+            } catch (e) {
+                return 'dev_session_' + Math.random().toString(36).slice(2);
+            }
+        }
 
         function loadLocalFallbackState() {
             try {
@@ -478,12 +516,13 @@
                         state.players = parsed.players;
                     }
                     state.roundNumber = Number(parsed.roundNumber || 1);
-                    state.submittedBallots = parsed.submittedBallots || {};
-                    state.roundHistory = Array.isArray(parsed.roundHistory) ? parsed.roundHistory : [];
+                    state.deviceBindings = parsed.deviceBindings && typeof parsed.deviceBindings === 'object' ? parsed.deviceBindings : {};
+                    state.ballots = parsed.ballots && typeof parsed.ballots === 'object' ? parsed.ballots : {};
+                    state.freezeClaims = Boolean(parsed.freezeClaims);
                     state.currentMatchup = parsed.currentMatchup || null;
                 }
             } catch (e) {
-                console.warn('Could not read localStorage fallback:', e);
+                console.warn('Could not load localStorage fallback:', e);
             }
         }
 
@@ -503,19 +542,20 @@
                 badge.textContent = '🟢 Live Synced';
             } else if (status === 'connecting') {
                 badge.className = 'inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-amber-500/15 text-amber-300 border border-amber-500/30 shrink-0';
-                badge.textContent = '🟠 Connecting...';
+                badge.textContent = '🟡 Connecting...';
             } else {
-                badge.className = 'inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-slate-800 text-slate-300 border border-slate-700 shrink-0';
-                badge.textContent = '⚪ Local Mode';
+                badge.className = 'inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-amber-500/15 text-amber-300 border border-amber-500/30 shrink-0';
+                badge.textContent = '🟡 Offline / Local';
             }
         }
 
         async function initFirebase() {
             setSyncBadge('connecting');
             loadLocalFallbackState();
+            currentDeviceUid = getOrCreateFallbackDeviceUid();
 
             try {
-                const defaultFirebaseConfig = {
+                const firebaseConfig = {
                     apiKey: "AIzaSyDLQd3lSMRXrbvrUlOll0qZVO1QJ5K7xlk",
                     authDomain: "pitchperfect-cricket.firebaseapp.com",
                     projectId: "pitchperfect-cricket",
@@ -524,30 +564,18 @@
                     appId: "1:670149026181:web:9a4601d85833d70e2824ec"
                 };
 
-                const firebaseConfig = (typeof __firebase_config !== 'undefined' && __firebase_config)
-                    ? JSON.parse(__firebase_config)
-                    : defaultFirebaseConfig;
-
                 const app = initializeApp(firebaseConfig);
                 auth = getAuth(app);
                 db = getFirestore(app);
 
-                // RULE 3: Authenticate before any Firestore queries
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-                currentUser = auth.currentUser;
+                // Sign in anonymously directly for your pitchperfect-cricket Firebase project
+                await signInAnonymously(auth);
 
-                if (!currentUser) {
-                    setSyncBadge('local');
-                    renderAll();
-                    return;
+                if (auth.currentUser && auth.currentUser.uid) {
+                    currentDeviceUid = auth.currentUser.uid;
                 }
 
-                // RULE 1: Strict public path artifacts/pitchperfect-cricket/public/data/squad/main
-                squadDocRef = doc(db, 'artifacts', 'pitchperfect-cricket', 'public', 'data', 'squad', 'main');
+                squadDocRef = doc(db, 'artifacts', 'pitchperfect-cricket', 'public', 'data', 'squadState', 'main');
 
                 onSnapshot(
                     squadDocRef,
@@ -556,8 +584,9 @@
                             await setDoc(squadDocRef, {
                                 players: state.players,
                                 roundNumber: state.roundNumber,
-                                submittedBallots: state.submittedBallots,
-                                roundHistory: state.roundHistory,
+                                deviceBindings: state.deviceBindings,
+                                ballots: state.ballots,
+                                freezeClaims: state.freezeClaims,
                                 currentMatchup: state.currentMatchup,
                                 updatedAt: Date.now()
                             });
@@ -567,27 +596,31 @@
                                 state.players = data.players;
                             }
                             state.roundNumber = Number(data.roundNumber || 1);
-                            state.submittedBallots = data.submittedBallots && typeof data.submittedBallots === 'object' ? data.submittedBallots : {};
-                            state.roundHistory = Array.isArray(data.roundHistory) ? data.roundHistory : [];
+                            state.deviceBindings = data.deviceBindings && typeof data.deviceBindings === 'object' ? data.deviceBindings : {};
+                            state.ballots = data.ballots && typeof data.ballots === 'object' ? data.ballots : {};
+                            state.freezeClaims = Boolean(data.freezeClaims);
                             state.currentMatchup = data.currentMatchup || null;
                             saveLocalFallbackState();
                         }
 
                         isCloudConnected = true;
                         setSyncBadge('live');
+                        reconcileVoterIdentity();
                         renderAll();
                     },
                     (error) => {
-                        console.error('Firestore snapshot error:', error);
+                        console.error('Firestore onSnapshot error:', error);
                         isCloudConnected = false;
-                        setSyncBadge('local');
+                        setSyncBadge('offline');
+                        reconcileVoterIdentity();
                         renderAll();
                     }
                 );
             } catch (err) {
-                console.error('Firebase initialization failed, running in Local Mode:', err);
+                console.error('Firebase initialization failed:', err);
                 isCloudConnected = false;
-                setSyncBadge('local');
+                setSyncBadge('offline');
+                reconcileVoterIdentity();
                 renderAll();
             }
         }
@@ -595,9 +628,10 @@
         async function syncStateUpdate(partialUpdate) {
             Object.assign(state, partialUpdate);
             saveLocalFallbackState();
+            reconcileVoterIdentity();
             renderAll();
 
-            if (!isCloudConnected || !currentUser || !squadDocRef) return;
+            if (!isCloudConnected || !squadDocRef) return;
 
             try {
                 await updateDoc(squadDocRef, {
@@ -606,36 +640,44 @@
                 });
             } catch (err) {
                 console.error('Firestore update error:', err);
-                setSyncBadge('local');
-                showToast('Saved locally — cloud sync paused', '⚠️');
+                setSyncBadge('offline');
+                showToast('Saved locally — will sync when online', '🟡');
             }
         }
 
         // =====================================================================
-        // 3. TAB SWITCHING & CAPTAIN MODE (PIN: 5020)
+        // 3. NAVIGATION & SECRET CAPTAIN MODE
         // =====================================================================
         window.switchTab = function(tabName) {
-            const matchdayBtn = document.getElementById('tab-matchday');
-            const votingBtn = document.getElementById('tab-voting');
-            const matchdayView = document.getElementById('view-matchday');
-            const votingView = document.getElementById('view-voting');
-
-            if (tabName === 'matchday') {
-                matchdayBtn.className = 'py-2.5 px-3 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center justify-center gap-1.5 bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20';
-                votingBtn.className = 'py-2.5 px-3 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center justify-center gap-1.5 text-slate-300 hover:text-white';
-                matchdayView.classList.remove('hidden');
-                votingView.classList.add('hidden');
-            } else {
-                votingBtn.className = 'py-2.5 px-3 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center justify-center gap-1.5 bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20';
-                matchdayBtn.className = 'py-2.5 px-3 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center justify-center gap-1.5 text-slate-300 hover:text-white';
-                votingView.classList.remove('hidden');
-                matchdayView.classList.add('hidden');
+            if (tabName === 'captain' && !isCaptainUnlocked) {
+                handleCaptainButtonClick();
+                return;
             }
+            activeTab = tabName;
+
+            const tabs = ['attendance', 'teams', 'voting', 'captain'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                const view = document.getElementById(`view-${t}`);
+                if (!btn || !view) return;
+
+                if (t === tabName) {
+                    btn.className = t === 'captain'
+                        ? 'py-2.5 px-2 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center justify-center gap-1.5 bg-amber-400 text-slate-950 shadow-md shadow-amber-500/20'
+                        : 'py-2.5 px-2 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center justify-center gap-1.5 bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20';
+                    view.classList.remove('hidden');
+                } else {
+                    btn.className = t === 'captain'
+                        ? `${isCaptainUnlocked ? '' : 'hidden '}py-2.5 px-2 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center justify-center gap-1.5 text-amber-300 hover:text-amber-200`
+                        : 'py-2.5 px-2 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center justify-center gap-1.5 text-slate-300 hover:text-white';
+                    view.classList.add('hidden');
+                }
+            });
         };
 
         window.handleCaptainButtonClick = function() {
             if (isCaptainUnlocked) {
-                lockCaptainMode();
+                switchTab('captain');
             } else {
                 document.getElementById('pin-error').classList.add('hidden');
                 document.getElementById('pin-input').value = '';
@@ -654,7 +696,8 @@
             if (entered === CAPTAIN_PIN) {
                 isCaptainUnlocked = true;
                 closePinModal();
-                updateCaptainUI();
+                updateCaptainChrome();
+                switchTab('captain');
                 showToast('Captain Mode Unlocked', '🛡️');
             } else {
                 document.getElementById('pin-error').classList.remove('hidden');
@@ -663,56 +706,329 @@
 
         window.lockCaptainMode = function() {
             isCaptainUnlocked = false;
-            updateCaptainUI();
+            updateCaptainChrome();
+            if (activeTab === 'captain') {
+                switchTab('attendance');
+            }
             showToast('Captain Mode Locked', '🔒');
         };
 
-        function updateCaptainUI() {
+        function updateCaptainChrome() {
             const btn = document.getElementById('captain-btn');
             const icon = document.getElementById('captain-btn-icon');
             const text = document.getElementById('captain-btn-text');
-            const panel = document.getElementById('captain-panel');
-            const roundControls = document.getElementById('captain-round-controls');
+            const navGrid = document.getElementById('nav-tabs-grid');
+            const captainTabBtn = document.getElementById('tab-captain');
 
             if (isCaptainUnlocked) {
                 btn.className = 'px-3 py-2 rounded-xl text-xs font-extrabold border transition flex items-center gap-1.5 shrink-0 bg-amber-400 border-amber-300 text-slate-950 shadow-md shadow-amber-500/20';
                 icon.textContent = '🛡️';
                 text.textContent = 'Captain Active';
-                panel.classList.remove('hidden');
-                roundControls.classList.remove('hidden');
-                renderCaptainRoster();
+                navGrid.className = 'max-w-4xl mx-auto mt-3 grid grid-cols-4 gap-1.5 p-1 rounded-2xl bg-slate-950/90 border border-emerald-500/15';
+                captainTabBtn.classList.remove('hidden');
             } else {
                 btn.className = 'px-3 py-2 rounded-xl text-xs font-extrabold border transition flex items-center gap-1.5 shrink-0 bg-slate-900/90 border-amber-400/35 text-amber-300 hover:bg-amber-400/15';
                 icon.textContent = '🔒';
                 text.textContent = 'Captain Mode';
-                panel.classList.add('hidden');
-                roundControls.classList.add('hidden');
+                navGrid.className = 'max-w-4xl mx-auto mt-3 grid grid-cols-3 gap-1.5 p-1 rounded-2xl bg-slate-950/90 border border-emerald-500/15';
+                captainTabBtn.classList.add('hidden');
             }
         }
 
         // =====================================================================
-        // 4. CAPTAIN ROSTER MANAGEMENT (ADD / REMOVE / RENAME / TIER / ROLE)
+        // 4. DEVICE-BOUND IDENTITY & SHARED-PAIR LOGIC
         // =====================================================================
-        window.captainAddPlayer = async function(e) {
-            e.preventDefault();
+        function getPairNamesForPlayerName(name) {
+            const normalized = String(name || '').trim().toLowerCase();
+            for (const pair of SHARED_PAIRS) {
+                if (pair.some(member => member.toLowerCase() === normalized)) {
+                    return pair;
+                }
+            }
+            return null;
+        }
+
+        function getAllowedPlayersForThisDevice() {
+            const bindings = state.deviceBindings || {};
+            // Find all players directly bound to currentDeviceUid
+            const directlyBoundPlayers = state.players.filter(p => bindings[p.id] === currentDeviceUid);
+
+            if (directlyBoundPlayers.length === 0) {
+                return { mode: 'unclaimed', players: [] };
+            }
+
+            // Check if any bound player belongs to a shared pair (Hamza/Subhan or Sherry/Baby)
+            const firstPlayer = directlyBoundPlayers[0];
+            const pairNames = getPairNamesForPlayerName(firstPlayer.name);
+
+            if (pairNames) {
+                const pairPlayers = state.players.filter(p =>
+                    pairNames.some(pn => pn.toLowerCase() === p.name.trim().toLowerCase())
+                );
+                return { mode: 'bound_pair', players: pairPlayers };
+            }
+
+            return { mode: 'bound_single', players: [firstPlayer] };
+        }
+
+        function getClaimablePlayersForUnboundDevice() {
+            const bindings = state.deviceBindings || {};
+            return state.players.filter(p => {
+                // Already claimed by someone else
+                if (bindings[p.id]) return false;
+
+                // If player is in a shared pair, and their partner is ALREADY bound to another device,
+                // prevent claiming this player on a separate device (prevents cross-device theft)
+                const pairNames = getPairNamesForPlayerName(p.name);
+                if (pairNames) {
+                    const partner = state.players.find(other =>
+                        other.id !== p.id &&
+                        pairNames.some(pn => pn.toLowerCase() === other.name.trim().toLowerCase())
+                    );
+                    if (partner && bindings[partner.id] && bindings[partner.id] !== currentDeviceUid) {
+                        return false;
+                    }
+                }
+                return true;
+            });
+        }
+
+        function reconcileVoterIdentity() {
+            const access = getAllowedPlayersForThisDevice();
+            if (access.mode === 'bound_single') {
+                selectedVoterId = access.players[0].id;
+            } else if (access.mode === 'bound_pair') {
+                const validIds = access.players.map(p => p.id);
+                if (!validIds.includes(selectedVoterId)) {
+                    // Default to whichever partner hasn't voted yet, or the first partner
+                    const unvotedPartner = access.players.find(p => !state.ballots[p.id]);
+                    selectedVoterId = unvotedPartner ? unvotedPartner.id : access.players[0].id;
+                }
+            } else {
+                // Unclaimed device: clear selectedVoterId if that player got claimed elsewhere
+                if (selectedVoterId && state.deviceBindings[selectedVoterId]) {
+                    selectedVoterId = '';
+                }
+            }
+        }
+
+        window.handleSelectBoundPairMember = function(playerId) {
+            selectedVoterId = playerId;
+            draftVotes = {};
+            renderVotingTab();
+        };
+
+        window.handleClaimDeviceForPlayer = function() {
+            const selectEl = document.getElementById('claim-player-select');
+            if (!selectEl || !selectEl.value) {
+                showToast('Choose your name from the list first!', '👆');
+                return;
+            }
+            if (state.freezeClaims) {
+                showToast('Device claims are frozen by the Captain.', '🔒');
+                return;
+            }
+
+            const chosenId = selectEl.value;
+            const player = state.players.find(p => p.id === chosenId);
+            if (!player) return;
+
+            if (state.deviceBindings[chosenId]) {
+                showToast(`${player.name} is already linked to another phone!`, '⚠️');
+                return;
+            }
+
+            const pairNames = getPairNamesForPlayerName(player.name);
+            const confirmMsg = pairNames
+                ? `This will link your device to the shared pair [${pairNames.join(' & ')}]. Only ${pairNames.join(' and ')} will be able to vote (once each) from this phone.`
+                : `This will permanently lock this phone to ${player.name}. You will not be able to switch to any other teammate's name.`;
+
+            openConfirmModal(
+                `Link Phone to ${player.name}?`,
+                confirmMsg,
+                async () => {
+                    const updatedBindings = {
+                        ...state.deviceBindings,
+                        [chosenId]: currentDeviceUid
+                    };
+
+                    // If shared pair, bind both members to this shared device so no other device can steal the partner
+                    if (pairNames) {
+                        state.players.forEach(p => {
+                            if (pairNames.some(pn => pn.toLowerCase() === p.name.trim().toLowerCase())) {
+                                updatedBindings[p.id] = currentDeviceUid;
+                            }
+                        });
+                    }
+
+                    selectedVoterId = chosenId;
+                    draftVotes = {};
+                    await syncStateUpdate({ deviceBindings: updatedBindings });
+                    showToast(`Phone linked to ${player.name}!`, '📱');
+                }
+            );
+        };
+
+        // =====================================================================
+        // 5. ZERO-KNOWLEDGE ANONYMOUS VOTING & SUBMISSION
+        // =====================================================================
+        window.setDraftVote = function(targetPlayerId, value) {
+            const access = getAllowedPlayersForThisDevice();
+            if (access.mode === 'unclaimed' || !selectedVoterId) {
+                showToast('Claim your player identity above before voting!', '👆');
+                return;
+            }
+            if (state.ballots[selectedVoterId]) {
+                showToast('Your ballot is already locked for this round!', '🔒');
+                return;
+            }
+            if (targetPlayerId === selectedVoterId) {
+                showToast('You cannot vote for yourself', '⚠️');
+                return;
+            }
+
+            if (value === 0 || draftVotes[targetPlayerId] === value) {
+                delete draftVotes[targetPlayerId];
+            } else {
+                draftVotes[targetPlayerId] = value;
+            }
+            renderVotingTab();
+        };
+
+        window.submitAnonymousBallot = function() {
+            const access = getAllowedPlayersForThisDevice();
+            if (access.mode === 'unclaimed' || !selectedVoterId) {
+                showToast('Link your name first!', '⚠️');
+                return;
+            }
+            if (state.ballots[selectedVoterId]) {
+                showToast('You have already voted in this round!', '🔒');
+                return;
+            }
+
+            const entries = Object.entries(draftVotes).filter(([_, v]) => v === 1 || v === -1);
+            if (entries.length === 0) {
+                showToast('Cast at least one ▲ Upvote or ▼ Downvote first!', '⚠️');
+                return;
+            }
+
+            const voter = state.players.find(p => p.id === selectedVoterId);
+            const upCount = entries.filter(([_, v]) => v === 1).length;
+            const downCount = entries.filter(([_, v]) => v === -1).length;
+
+            openConfirmModal(
+                `Submit ${voter ? voter.name + "'s" : 'Your'} Anonymous Ballot?`,
+                `Recording ${upCount} Upvote(s) and ${downCount} Downvote(s).\n\nYour choices are 100% anonymous (even the Captain cannot see who voted for whom) and cannot be changed once submitted.`,
+                async () => {
+                    const cleanBallot = {};
+                    entries.forEach(([targetId, val]) => {
+                        cleanBallot[targetId] = val;
+                    });
+
+                    const updatedBallots = {
+                        ...state.ballots,
+                        [selectedVoterId]: cleanBallot
+                    };
+
+                    draftVotes = {};
+                    await syncStateUpdate({ ballots: updatedBallots });
+                    showToast('Anonymous Ballot Submitted!', '✅');
+                }
+            );
+        };
+
+        function computeAnonymousTallies() {
+            const tallies = {};
+            state.players.forEach(p => {
+                tallies[p.id] = { up: 0, down: 0, net: 0 };
+            });
+
+            Object.values(state.ballots || {}).forEach(ballotMap => {
+                if (!ballotMap || typeof ballotMap !== 'object') return;
+                Object.entries(ballotMap).forEach(([targetId, val]) => {
+                    if (!tallies[targetId]) return;
+                    if (val === 1) {
+                        tallies[targetId].up += 1;
+                        tallies[targetId].net += 1;
+                    } else if (val === -1) {
+                        tallies[targetId].down += 1;
+                        tallies[targetId].net -= 1;
+                    }
+                });
+            });
+
+            return tallies;
+        }
+
+        // =====================================================================
+        // 6. CAPTAIN ANTI-PRANK & GOVERNANCE ACTIONS
+        // =====================================================================
+        window.captainUnlinkAndVoid = function(playerId, playerName) {
             if (!isCaptainUnlocked) return;
-            const nameInput = document.getElementById('new-player-name');
-            const tierSelect = document.getElementById('new-player-tier');
-            const roleSelect = document.getElementById('new-player-role');
-            const name = nameInput.value.trim();
-            if (!name) return;
+            const pairNames = getPairNamesForPlayerName(playerName);
+            const extraNote = pairNames
+                ? `\n\nNote: ${playerName} is part of shared pair [${pairNames.join(' & ')}]. Unlinking will free ${playerName}'s binding and void ${playerName}'s vote.`
+                : '';
 
-            const newPlayer = {
-                id: 'p_' + Date.now(),
-                name,
-                tier: Number(tierSelect.value),
-                role: roleSelect.value,
-                available: true
-            };
+            openConfirmModal(
+                `Unlink & Void ${playerName}?`,
+                `This will remove ${playerName}'s phone binding AND delete any ballot submitted under ${playerName}'s name in Round #${state.roundNumber}.${extraNote}`,
+                async () => {
+                    const updatedBindings = { ...state.deviceBindings };
+                    delete updatedBindings[playerId];
 
-            nameInput.value = '';
-            await syncStateUpdate({ players: [...state.players, newPlayer] });
-            showToast(`Added ${name} to squad`, '✓');
+                    const updatedBallots = { ...state.ballots };
+                    delete updatedBallots[playerId];
+
+                    if (selectedVoterId === playerId) {
+                        selectedVoterId = '';
+                        draftVotes = {};
+                    }
+
+                    await syncStateUpdate({
+                        deviceBindings: updatedBindings,
+                        ballots: updatedBallots
+                    });
+                    showToast(`Unlinked ${playerName} & voided vote`, '🛡️');
+                }
+            );
+        };
+
+        window.toggleFreezeClaims = async function() {
+            if (!isCaptainUnlocked) return;
+            const nextVal = !state.freezeClaims;
+            await syncStateUpdate({ freezeClaims: nextVal });
+            showToast(nextVal ? 'Device claims FROZEN' : 'Device claims OPEN', nextVal ? '🔒' : '🔓');
+        };
+
+        window.confirmResetAllDeviceBindings = function() {
+            if (!isCaptainUnlocked) return;
+            openConfirmModal(
+                'Reset All Device Bindings?',
+                'This will unlink ALL 15 phones back to Unclaimed so everyone can re-link their real device. Current round ballots will remain untouched.',
+                async () => {
+                    selectedVoterId = '';
+                    draftVotes = {};
+                    await syncStateUpdate({ deviceBindings: {} });
+                    showToast('All device bindings reset to zero', '🧹');
+                }
+            );
+        };
+
+        window.confirmStartNewVotingRound = function() {
+            if (!isCaptainUnlocked) return;
+            openConfirmModal(
+                `Start Voting Round #${state.roundNumber + 1}?`,
+                `This clears all ballots from Round #${state.roundNumber} and opens Round #${state.roundNumber + 1}.\n\nAll legitimate player device links stay remembered!`,
+                async () => {
+                    draftVotes = {};
+                    await syncStateUpdate({
+                        roundNumber: state.roundNumber + 1,
+                        ballots: {}
+                    });
+                    showToast(`Round #${state.roundNumber} is now live!`, '🗳️');
+                }
+            );
         };
 
         window.captainUpdatePlayerField = async function(playerId, field, value) {
@@ -727,30 +1043,8 @@
             showToast('Squad updated', '✓');
         };
 
-        window.captainRemovePlayer = function(playerId, playerName) {
-            if (!isCaptainUnlocked) return;
-            openConfirmModal(
-                `Remove ${playerName}?`,
-                `Are you sure you want to remove ${playerName} from the roster?`,
-                async () => {
-                    const updatedPlayers = state.players.filter(p => p.id !== playerId);
-                    const updatedBallots = { ...state.submittedBallots };
-                    delete updatedBallots[playerId];
-                    if (selectedVoterId === playerId) {
-                        selectedVoterId = '';
-                        localStorage.removeItem(VOTER_IDENTITY_KEY);
-                    }
-                    await syncStateUpdate({
-                        players: updatedPlayers,
-                        submittedBallots: updatedBallots
-                    });
-                    showToast(`Removed ${playerName}`, '✕');
-                }
-            );
-        };
-
         // =====================================================================
-        // 5. MATCHDAY ATTENDANCE & BALANCED TEAM GENERATOR
+        // 7. ATTENDANCE & BALANCED TEAM GENERATOR + WHATSAPP COPY
         // =====================================================================
         window.togglePlayerAvailability = async function(playerId) {
             const updatedPlayers = state.players.map(p =>
@@ -787,6 +1081,10 @@
             return counts;
         }
 
+        function getTierPoints(tier) {
+            return (TIERS[tier] && TIERS[tier].points) ? TIERS[tier].points : 2;
+        }
+
         window.generateBalancedTeams = async function(isReshuffle = false) {
             const availablePlayers = state.players.filter(p => p.available);
             if (availablePlayers.length < 2) {
@@ -815,11 +1113,10 @@
                     continue;
                 }
 
-                const ratingA = teamA.reduce((sum, p) => sum + Number(p.tier || 3), 0);
-                const ratingB = teamB.reduce((sum, p) => sum + Number(p.tier || 3), 0);
+                const ratingA = teamA.reduce((sum, p) => sum + getTierPoints(p.tier), 0);
+                const ratingB = teamB.reduce((sum, p) => sum + getTierPoints(p.tier), 0);
                 const ratingDiff = Math.abs(ratingA - ratingB);
 
-                // Role balance penalty across Batsmen, Bowlers, All-Rounders, and Wicketkeepers
                 const rolesA = countRoles(teamA);
                 const rolesB = countRoles(teamB);
                 const roleDiff =
@@ -828,25 +1125,22 @@
                     Math.abs(rolesA['All-Rounder'] - rolesB['All-Rounder']) +
                     Math.abs(rolesA['Wicketkeeper'] - rolesB['Wicketkeeper']) * 1.5;
 
-                // Top-tier (Tier 4 & 5) spread penalty
-                const starsA = teamA.filter(p => p.tier >= 4).length;
-                const starsB = teamB.filter(p => p.tier >= 4).length;
-                const starDiff = Math.abs(starsA - starsB);
+                const eliteA = teamA.filter(p => Number(p.tier) === 1).length;
+                const eliteB = teamB.filter(p => Number(p.tier) === 1).length;
+                const eliteDiff = Math.abs(eliteA - eliteB);
 
                 let penalty = 0;
                 if (!isOdd) {
-                    penalty += ratingDiff * 14 + roleDiff * 5 + starDiff * 8;
+                    penalty += ratingDiff * 15 + roleDiff * 5 + eliteDiff * 8;
                 } else {
-                    // For odd numbers, give the smaller team a slight rating compensation (1-3 pts)
                     const smallRating = teamAGetsSmall ? ratingA : ratingB;
                     const largeRating = teamAGetsSmall ? ratingB : ratingA;
                     const advantage = smallRating - largeRating;
-                    const idealOffsetPenalty = (advantage >= 1 && advantage <= 3) ? 0 : Math.abs(2 - advantage) * 14;
-                    penalty += idealOffsetPenalty + roleDiff * 5 + starDiff * 6;
+                    const idealOffsetPenalty = (advantage >= 0 && advantage <= 2) ? 0 : Math.abs(1 - advantage) * 14;
+                    penalty += idealOffsetPenalty + roleDiff * 5 + eliteDiff * 6;
                 }
 
-                // Slight jitter so Reshuffle Balanced produces fresh balanced combos
-                penalty += Math.random() * 5;
+                penalty += Math.random() * 4.5;
 
                 candidates.push({
                     teamA,
@@ -865,8 +1159,8 @@
                 const shuffled = shuffleArray(availablePlayers);
                 const teamA = shuffled.slice(0, sizeSmall);
                 const teamB = shuffled.slice(sizeSmall);
-                const ratingA = teamA.reduce((s, p) => s + Number(p.tier || 3), 0);
-                const ratingB = teamB.reduce((s, p) => s + Number(p.tier || 3), 0);
+                const ratingA = teamA.reduce((s, p) => s + getTierPoints(p.tier), 0);
+                const ratingB = teamB.reduce((s, p) => s + getTierPoints(p.tier), 0);
                 candidates.push({
                     teamA, teamB, ratingA, ratingB,
                     ratingDiff: Math.abs(ratingA - ratingB),
@@ -880,9 +1174,9 @@
             const topPool = candidates.slice(0, Math.min(5, candidates.length));
             const chosen = topPool[Math.floor(Math.random() * topPool.length)];
 
-            // Sort rosters from highest tier to lowest for clean display
-            chosen.teamA.sort((a, b) => b.tier - a.tier);
-            chosen.teamB.sort((a, b) => b.tier - a.tier);
+            // Sort Tier 1 (Elite) -> Tier 2 (Core) -> Tier 3 (Developing)
+            chosen.teamA.sort((a, b) => a.tier - b.tier || a.name.localeCompare(b.name));
+            chosen.teamB.sort((a, b) => a.tier - b.tier || a.name.localeCompare(b.name));
 
             lastSplitSignature = chosen.sig;
 
@@ -903,7 +1197,6 @@
                 }
             });
 
-            document.getElementById('teams-output-section').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             showToast(isReshuffle ? 'Teams reshuffled!' : 'Balanced teams generated!', '⚡');
         };
 
@@ -913,11 +1206,11 @@
 
             const formatSquad = (name, roster, rating) => {
                 const lines = roster.map((p, idx) => {
-                    const t = TIERS[p.tier] || TIERS[3];
+                    const t = TIERS[p.tier] || TIERS[2];
                     const rIcon = ROLE_ICONS[p.role] || '🏏';
-                    return `${idx + 1}. ${t.icon} *${p.name}* — ${rIcon} ${p.role} _(T${p.tier} ${t.label})_`;
+                    return `${idx + 1}. ${t.icon} *${p.name}* — ${rIcon} ${p.role} _(Tier ${p.tier})_`;
                 });
-                return `*${name.toUpperCase()}* (${roster.length} Players | ⚡ ${rating} Tier Pts)\n` + lines.join('\n');
+                return `*${name.toUpperCase()}* (${roster.length} Players | ⚡ ${rating} Pts)\n` + lines.join('\n');
             };
 
             const shareText = [
@@ -929,7 +1222,7 @@
                 ``,
                 formatSquad(match.teamBName, match.teamB, match.ratingB),
                 ``,
-                `_Generated live on PitchPerfect Cricket_`
+                `_Generated on PitchPerfect Cricket_`
             ].join('\n');
 
             const textarea = document.createElement('textarea');
@@ -940,7 +1233,7 @@
             textarea.select();
             try {
                 document.execCommand('copy');
-                showToast('Copied! Paste directly in WhatsApp', '📋');
+                showToast('Copied! Paste directly into WhatsApp', '📋');
             } catch (err) {
                 showToast('Copy failed — please try again', '⚠️');
             }
@@ -948,253 +1241,39 @@
         };
 
         // =====================================================================
-        // 6. STRUCTURED VOTING SYSTEM (DRAFT -> CONFIRM/LOCK -> CAPTAIN APPROVAL)
-        // =====================================================================
-        window.handleVoterSelection = function(voterId) {
-            selectedVoterId = voterId;
-            try {
-                if (voterId) {
-                    localStorage.setItem(VOTER_IDENTITY_KEY, voterId);
-                } else {
-                    localStorage.removeItem(VOTER_IDENTITY_KEY);
-                }
-            } catch (e) {}
-
-            // Reset draft picks whenever switching voter identity
-            draftPromoteId = null;
-            draftRelegateId = null;
-            renderVotingTab();
-        };
-
-        window.toggleDraftPick = function(targetPlayerId, direction) {
-            if (!selectedVoterId) {
-                showToast('First select who you are from the dropdown above!', '👆');
-                document.getElementById('voter-select').focus();
-                return;
-            }
-
-            if (state.submittedBallots[selectedVoterId]) {
-                showToast('Your ballot is already locked for this round!', '🔒');
-                return;
-            }
-
-            if (targetPlayerId === selectedVoterId) {
-                showToast('You cannot vote for yourself', '⚠️');
-                return;
-            }
-
-            const targetPlayer = state.players.find(p => p.id === targetPlayerId);
-            if (!targetPlayer) return;
-
-            if (direction === 'promote') {
-                if (targetPlayer.tier >= 5) {
-                    showToast(`${targetPlayer.name} is already at Max Tier 5 (Elite)`, '👑');
-                    return;
-                }
-                draftPromoteId = (draftPromoteId === targetPlayerId) ? null : targetPlayerId;
-                if (draftRelegateId === targetPlayerId) draftRelegateId = null;
-            } else if (direction === 'relegate') {
-                if (targetPlayer.tier <= 1) {
-                    showToast(`${targetPlayer.name} is already at Min Tier 1 (Rookie)`, '🌱');
-                    return;
-                }
-                draftRelegateId = (draftRelegateId === targetPlayerId) ? null : targetPlayerId;
-                if (draftPromoteId === targetPlayerId) draftPromoteId = null;
-            }
-
-            renderVotingTab();
-        };
-
-        window.clearDraftSelection = function() {
-            draftPromoteId = null;
-            draftRelegateId = null;
-            renderVotingTab();
-        };
-
-        window.confirmAndLockBallot = function() {
-            if (!selectedVoterId) {
-                showToast('Select your name first!', '⚠️');
-                return;
-            }
-            if (state.submittedBallots[selectedVoterId]) {
-                showToast('Your ballot is already locked!', '🔒');
-                return;
-            }
-            if (!draftPromoteId && !draftRelegateId) {
-                showToast('Select at least one Promote or Relegate pick first!', '⚠️');
-                return;
-            }
-
-            const voter = state.players.find(p => p.id === selectedVoterId);
-            const promoPlayer = state.players.find(p => p.id === draftPromoteId);
-            const relPlayer = state.players.find(p => p.id === draftRelegateId);
-
-            const summaryParts = [];
-            if (promoPlayer) summaryParts.push(`Promote ${promoPlayer.name} (+1 Tier)`);
-            if (relPlayer) summaryParts.push(`Relegate ${relPlayer.name} (-1 Tier)`);
-
-            openConfirmModal(
-                `Lock ${voter ? voter.name + "'s" : 'Your'} Ballot?`,
-                `Submitting: ${summaryParts.join(' & ')}. Once locked, your vote cannot be changed until the Captain approves or resets Round #${state.roundNumber}.`,
-                async () => {
-                    const updatedBallots = {
-                        ...state.submittedBallots,
-                        [selectedVoterId]: {
-                            promoteId: draftPromoteId || null,
-                            relegateId: draftRelegateId || null,
-                            lockedAt: Date.now()
-                        }
-                    };
-
-                    draftPromoteId = null;
-                    draftRelegateId = null;
-
-                    await syncStateUpdate({ submittedBallots: updatedBallots });
-                    showToast('Ballot Confirmed & Locked!', '✅');
-                }
-            );
-        };
-
-        function computeTalliedVotes() {
-            const tallies = {};
-            state.players.forEach(p => {
-                tallies[p.id] = { promote: 0, relegate: 0 };
-            });
-
-            Object.values(state.submittedBallots || {}).forEach(ballot => {
-                if (ballot.promoteId && tallies[ballot.promoteId]) {
-                    tallies[ballot.promoteId].promote += 1;
-                }
-                if (ballot.relegateId && tallies[ballot.relegateId]) {
-                    tallies[ballot.relegateId].relegate += 1;
-                }
-            });
-            return tallies;
-        }
-
-        window.confirmApproveAndApplyRound = function() {
-            if (!isCaptainUnlocked) return;
-            const tallies = computeTalliedVotes();
-
-            // Find top promotion candidate (highest promote votes > 0, tier < 5)
-            let topPromote = null;
-            let maxPromoteVotes = 0;
-            // Find top relegation candidate (highest relegate votes > 0, tier > 1)
-            let topRelegate = null;
-            let maxRelegateVotes = 0;
-
-            state.players.forEach(p => {
-                const t = tallies[p.id] || { promote: 0, relegate: 0 };
-                if (t.promote > maxPromoteVotes && p.tier < 5) {
-                    maxPromoteVotes = t.promote;
-                    topPromote = p;
-                }
-                if (t.relegate > maxRelegateVotes && p.tier > 1) {
-                    maxRelegateVotes = t.relegate;
-                    topRelegate = p;
-                }
-            });
-
-            // Avoid promoting & relegating the exact same player if tied
-            if (topPromote && topRelegate && topPromote.id === topRelegate.id) {
-                if (maxPromoteVotes >= maxRelegateVotes) {
-                    topRelegate = null;
-                } else {
-                    topPromote = null;
-                }
-            }
-
-            const changes = [];
-            if (topPromote) changes.push(`▲ Promote ${topPromote.name} (Tier ${topPromote.tier} → ${topPromote.tier + 1}, ${maxPromoteVotes} votes)`);
-            if (topRelegate) changes.push(`▼ Relegate ${topRelegate.name} (Tier ${topRelegate.tier} → ${topRelegate.tier - 1}, ${maxRelegateVotes} votes)`);
-
-            const description = changes.length > 0
-                ? `Applying round winners:\n${changes.join(' | ')}.\nAll ballots will reset for Round #${state.roundNumber + 1}.`
-                : `No eligible promotion/relegation votes were cast. Archive Round #${state.roundNumber} and open Round #${state.roundNumber + 1}?`;
-
-            openConfirmModal(
-                `Approve & Apply Round #${state.roundNumber}?`,
-                description,
-                async () => {
-                    const updatedPlayers = state.players.map(p => {
-                        if (topPromote && p.id === topPromote.id) {
-                            return { ...p, tier: Math.min(5, p.tier + 1) };
-                        }
-                        if (topRelegate && p.id === topRelegate.id) {
-                            return { ...p, tier: Math.max(1, p.tier - 1) };
-                        }
-                        return p;
-                    });
-
-                    const archiveEntry = {
-                        round: state.roundNumber,
-                        approvedAt: new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
-                        promoted: topPromote ? `${topPromote.name} (T${topPromote.tier}→T${topPromote.tier + 1})` : 'None',
-                        relegated: topRelegate ? `${topRelegate.name} (T${topRelegate.tier}→T${topRelegate.tier - 1})` : 'None',
-                        totalBallots: Object.keys(state.submittedBallots || {}).length
-                    };
-
-                    draftPromoteId = null;
-                    draftRelegateId = null;
-
-                    await syncStateUpdate({
-                        players: updatedPlayers,
-                        roundNumber: state.roundNumber + 1,
-                        submittedBallots: {},
-                        roundHistory: [archiveEntry, ...(state.roundHistory || [])].slice(0, 10)
-                    });
-
-                    showToast(`Round #${archiveEntry.round} Approved & Applied!`, '🏆');
-                }
-            );
-        };
-
-        window.confirmResetRound = function() {
-            if (!isCaptainUnlocked) return;
-            openConfirmModal(
-                `Reset Round #${state.roundNumber} Ballots?`,
-                'This clears all locked ballots in the current round without changing any player tiers.',
-                async () => {
-                    draftPromoteId = null;
-                    draftRelegateId = null;
-                    await syncStateUpdate({ submittedBallots: {} });
-                    showToast(`Round #${state.roundNumber} ballots reset`, '🧹');
-                }
-            );
-        };
-
-        // =====================================================================
-        // 7. RENDERING FUNCTIONS
+        // 8. RENDERING FUNCTIONS
         // =====================================================================
         function renderAll() {
-            renderMatchdayAttendance();
-            renderMatchdayTeams();
+            renderAttendanceTab();
+            renderTeamsTab();
             renderVotingTab();
             if (isCaptainUnlocked) {
-                renderCaptainRoster();
+                renderCaptainTab();
             }
         }
 
-        function renderMatchdayAttendance() {
+        function renderAttendanceTab() {
             const grid = document.getElementById('attendance-grid');
             const badge = document.getElementById('available-count-badge');
+            const teamsPill = document.getElementById('teams-available-pill');
             if (!grid || !badge) return;
 
             const availableCount = state.players.filter(p => p.available).length;
             badge.textContent = `${availableCount} / ${state.players.length} Available`;
+            if (teamsPill) teamsPill.textContent = `${availableCount} Players Ready`;
 
-            const sorted = [...state.players].sort((a, b) => b.tier - a.tier || a.name.localeCompare(b.name));
+            const sorted = [...state.players].sort((a, b) => a.tier - b.tier || a.name.localeCompare(b.name));
             grid.innerHTML = '';
 
             sorted.forEach(p => {
-                const t = TIERS[p.tier] || TIERS[3];
+                const t = TIERS[p.tier] || TIERS[2];
                 const rIcon = ROLE_ICONS[p.role] || '🏏';
 
                 const card = document.createElement('div');
                 card.className = `tap-card cursor-pointer p-3 rounded-2xl border flex items-center justify-between gap-2.5 ${
                     p.available
                         ? t.cardActiveClass
-                        : 'bg-slate-950/60 border-slate-800/80 opacity-55 hover:opacity-90'
+                        : 'bg-slate-950/65 border-slate-800/85 opacity-55 hover:opacity-90'
                 }`;
                 card.onclick = () => togglePlayerAvailability(p.id);
 
@@ -1204,7 +1283,7 @@
                         <div class="min-w-0">
                             <div class="font-extrabold text-sm text-white truncate">${escapeHtml(p.name)}</div>
                             <div class="text-[11px] text-slate-400 font-medium truncate">
-                                ${rIcon} ${escapeHtml(p.role)} • <span class="font-bold text-slate-300">T${p.tier} ${t.label}</span>
+                                ${rIcon} ${escapeHtml(p.role)} • <span class="font-bold text-slate-300">Tier ${p.tier} (${t.label})</span>
                             </div>
                         </div>
                     </div>
@@ -1220,7 +1299,7 @@
             });
         }
 
-        function renderMatchdayTeams() {
+        function renderTeamsTab() {
             const section = document.getElementById('teams-output-section');
             const match = state.currentMatchup;
             if (!section) return;
@@ -1241,10 +1320,10 @@
                 const smallLen = match.teamAGetsSmall ? match.teamA.length : match.teamB.length;
                 const largeLen = match.teamAGetsSmall ? match.teamB.length : match.teamA.length;
                 badge.textContent = `⚖️ ${smallLen}v${largeLen} Balanced Odd Split`;
-                text.textContent = `${smallName} (${smallLen} players) is compensated with higher average tier rating against ${largeName} (${largeLen} players).`;
+                text.textContent = `${smallName} (${smallLen} players) is balanced with higher average tier weight against ${largeName} (${largeLen} players).`;
             } else {
-                badge.textContent = `⚖️ Balanced Matchup (Δ ${match.ratingDiff} Tier Pt${match.ratingDiff === 1 ? '' : 's'})`;
-                text.textContent = `Teams are balanced across total player tier ratings and batting/bowling/keeper roles.`;
+                badge.textContent = `⚖️ Balanced Split (Δ ${match.ratingDiff} Pt${match.ratingDiff === 1 ? '' : 's'})`;
+                text.textContent = `Squads are balanced by Tier strength (T1=3pts, T2=2pts, T3=1pt) and player roles.`;
             }
 
             renderTeamColumn('team-a-card', match.teamAName, match.teamA, match.ratingA, 'emerald');
@@ -1260,10 +1339,10 @@
                 : 'bg-amber-500/15 border-amber-500/35 text-amber-300';
 
             const rows = roster.map((p, idx) => {
-                const t = TIERS[p.tier] || TIERS[3];
+                const t = TIERS[p.tier] || TIERS[2];
                 const rIcon = ROLE_ICONS[p.role] || '🏏';
                 return `
-                    <div class="flex items-center justify-between py-2.5 px-3 rounded-2xl bg-slate-950/70 border border-slate-800/85 gap-2">
+                    <div class="flex items-center justify-between py-2.5 px-3 rounded-2xl bg-slate-950/75 border border-slate-800/85 gap-2">
                         <div class="flex items-center gap-2.5 min-w-0">
                             <span class="text-xs font-mono text-slate-500 w-4">${idx + 1}.</span>
                             <span class="text-base shrink-0">${t.icon}</span>
@@ -1280,13 +1359,13 @@
             }).join('');
 
             card.innerHTML = `
-                <div class="p-4 sm:p-5 bg-slate-950/50 border-b border-slate-800/80 flex items-center justify-between gap-2">
+                <div class="p-4 sm:p-5 bg-slate-950/60 border-b border-slate-800/80 flex items-center justify-between gap-2">
                     <div>
                         <h3 class="text-lg sm:text-xl font-black tracking-tight text-white">${escapeHtml(name)}</h3>
                         <p class="text-xs text-slate-400 font-semibold mt-0.5">${roster.length} Player${roster.length === 1 ? '' : 's'}</p>
                     </div>
                     <div class="px-3 py-1.5 rounded-xl border ${pillStyle} font-black text-xs sm:text-sm">
-                        ⚡ ${rating} Tier Pts
+                        ⚡ ${rating} Pts
                     </div>
                 </div>
                 <div class="p-4 space-y-2 flex-1">
@@ -1298,264 +1377,312 @@
         function renderVotingTab() {
             const roundBadge = document.getElementById('round-number-badge');
             const ballotsPill = document.getElementById('ballots-count-pill');
-            const voterSelect = document.getElementById('voter-select');
-            const voterStatusPill = document.getElementById('voter-status-pill');
-            const statusBox = document.getElementById('ballot-status-box');
+            const participationEl = document.getElementById('participation-counter');
+            const identityContainer = document.getElementById('device-identity-container');
             const listContainer = document.getElementById('rankings-vote-list');
 
-            const ballots = state.submittedBallots || {};
+            const ballots = state.ballots || {};
             const ballotCount = Object.keys(ballots).length;
 
             if (roundBadge) roundBadge.textContent = `Round #${state.roundNumber}`;
             if (ballotsPill) ballotsPill.textContent = ballotCount;
+            if (participationEl) participationEl.textContent = `Ballots Cast: ${ballotCount} / ${state.players.length} players`;
 
-            // Populate voter dropdown while preserving selection
-            if (voterSelect) {
-                const sortedByName = [...state.players].sort((a, b) => a.name.localeCompare(b.name));
-                voterSelect.innerHTML = `<option value="">-- Choose Your Name --</option>` +
-                    sortedByName.map(p => {
-                        const alreadyVoted = Boolean(ballots[p.id]);
-                        return `<option value="${p.id}" ${selectedVoterId === p.id ? 'selected' : ''}>
-                            ${escapeHtml(p.name)} ${alreadyVoted ? '✅ (Ballot Locked)' : ''}
-                        </option>`;
-                    }).join('');
-            }
+            const access = getAllowedPlayersForThisDevice();
+            const hasActiveVoterVoted = Boolean(selectedVoterId && ballots[selectedVoterId]);
+            const canCastVotes = access.mode !== 'unclaimed' && Boolean(selectedVoterId) && !hasActiveVoterVoted;
 
-            const lockedBallot = selectedVoterId ? ballots[selectedVoterId] : null;
-            const isLocked = Boolean(lockedBallot);
-
-            if (voterStatusPill) {
-                if (!selectedVoterId) {
-                    voterStatusPill.textContent = `${ballotCount} of ${state.players.length} ballots locked`;
-                    voterStatusPill.className = 'text-[11px] font-bold text-slate-400';
-                } else if (isLocked) {
-                    voterStatusPill.textContent = '🔒 Locked for Round #' + state.roundNumber;
-                    voterStatusPill.className = 'text-[11px] font-extrabold text-emerald-300';
-                } else {
-                    voterStatusPill.textContent = '📝 Drafting Ballot';
-                    voterStatusPill.className = 'text-[11px] font-extrabold text-amber-300';
-                }
-            }
-
-            // Render Draft / Confirm & Lock Box
-            if (statusBox) {
-                if (!selectedVoterId) {
-                    statusBox.innerHTML = `
-                        <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 text-xs text-slate-400">
-                            Select your name in the dropdown above to draft and lock your promotion/relegation vote.
-                        </div>
-                    `;
-                } else if (isLocked) {
-                    const pName = state.players.find(p => p.id === lockedBallot.promoteId)?.name;
-                    const rName = state.players.find(p => p.id === lockedBallot.relegateId)?.name;
-                    const picksSummary = [
-                        pName ? `<span class="text-emerald-300 font-bold">▲ Promote ${escapeHtml(pName)}</span>` : null,
-                        rName ? `<span class="text-rose-300 font-bold">▼ Relegate ${escapeHtml(rName)}</span>` : null
-                    ].filter(Boolean).join(' • ');
-
-                    statusBox.innerHTML = `
-                        <div class="p-3.5 rounded-xl bg-emerald-500/15 border border-emerald-400/40 flex items-center justify-between gap-3">
-                            <div>
-                                <div class="text-xs font-black text-emerald-200">✅ Ballot Locked for Round #${state.roundNumber}</div>
-                                <div class="text-[11px] text-slate-200 mt-0.5">${picksSummary || 'Ballot recorded'}</div>
-                            </div>
-                            <span class="text-[10px] font-bold text-emerald-300/80 shrink-0">Awaiting Captain</span>
-                        </div>
-                    `;
-                } else {
-                    const promoName = state.players.find(p => p.id === draftPromoteId)?.name;
-                    const relName = state.players.find(p => p.id === draftRelegateId)?.name;
-                    const hasAnyPick = Boolean(draftPromoteId || draftRelegateId);
-
-                    statusBox.innerHTML = `
-                        <div class="p-3.5 rounded-xl bg-slate-900/95 border ${hasAnyPick ? 'border-amber-400/45' : 'border-slate-800'} flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                            <div class="text-xs space-y-1">
-                                <div class="font-extrabold text-white">Your Draft Picks:</div>
-                                <div class="flex flex-wrap items-center gap-2 text-[11px]">
-                                    <span class="px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-bold">
-                                        ▲ Promote: ${promoName ? escapeHtml(promoName) : 'None selected'}
-                                    </span>
-                                    <span class="px-2 py-0.5 rounded-md bg-rose-500/15 text-rose-300 border border-rose-500/30 font-bold">
-                                        ▼ Relegate: ${relName ? escapeHtml(relName) : 'None selected'}
-                                    </span>
+            // Render Device-Bound Identity Selector
+            if (identityContainer) {
+                if (access.mode === 'unclaimed') {
+                    if (state.freezeClaims) {
+                        identityContainer.innerHTML = `
+                            <div class="flex items-center gap-3 text-xs text-amber-200">
+                                <span class="text-lg">🔒</span>
+                                <div>
+                                    <div class="font-extrabold">New Device Claims Locked by Captain</div>
+                                    <div class="text-slate-400 mt-0.5">Ask the Captain to temporarily unfreeze device claims if you need to link your phone.</div>
                                 </div>
                             </div>
-                            <div class="flex items-center gap-2 shrink-0">
-                                ${hasAnyPick ? `
-                                    <button type="button" onclick="clearDraftSelection()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition">
-                                        Clear
+                        `;
+                    } else {
+                        const claimable = getClaimablePlayersForUnboundDevice().sort((a, b) => a.name.localeCompare(b.name));
+                        identityContainer.innerHTML = `
+                            <div class="space-y-2.5">
+                                <div class="flex items-center justify-between gap-2">
+                                    <span class="text-xs font-extrabold uppercase tracking-wider text-emerald-300">📱 Step 1: Link Your Phone (1-Time Setup)</span>
+                                    <span class="text-[11px] text-slate-400">Anti-impersonation lock</span>
+                                </div>
+                                <p class="text-xs text-slate-300 leading-relaxed">
+                                    Select your own name to bind this phone. Once linked, you cannot switch to another player's name.
+                                </p>
+                                <div class="flex flex-col sm:flex-row gap-2">
+                                    <select id="claim-player-select" class="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-900 border border-emerald-500/30 text-xs sm:text-sm font-extrabold text-white focus:outline-none focus:border-emerald-400">
+                                        <option value="">-- Choose Your Real Name --</option>
+                                        ${claimable.map(p => `<option value="${p.id}">${escapeHtml(p.name)} (Tier ${p.tier})</option>`).join('')}
+                                    </select>
+                                    <button type="button" onclick="handleClaimDeviceForPlayer()"
+                                        class="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs sm:text-sm transition shrink-0">
+                                        Link My Phone
                                     </button>
-                                ` : ''}
-                                <button type="button" onclick="confirmAndLockBallot()" ${!hasAnyPick ? 'disabled' : ''}
-                                    class="px-4 py-2.5 rounded-xl text-xs font-black transition ${
-                                        hasAnyPick
+                                </div>
+                            </div>
+                        `;
+                    }
+                } else if (access.mode === 'bound_single') {
+                    const me = access.players[0];
+                    const draftCount = Object.keys(draftVotes).length;
+                    identityContainer.innerHTML = `
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="px-2 py-0.5 rounded-md text-[10px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/35">📱 DEVICE BOUND</span>
+                                    <span class="text-sm font-black text-white">Voting as ${escapeHtml(me.name)}</span>
+                                </div>
+                                <p class="text-xs text-slate-400 mt-1">
+                                    ${hasActiveVoterVoted
+                                        ? `✅ Your anonymous ballot for Round #${state.roundNumber} is locked in.`
+                                        : `Tap ▲ Upvote or ▼ Downvote on teammates below, then submit your anonymous ballot.`}
+                                </p>
+                            </div>
+                            ${!hasActiveVoterVoted ? `
+                                <button type="button" onclick="submitAnonymousBallot()" ${draftCount === 0 ? 'disabled' : ''}
+                                    class="px-4 py-2.5 rounded-xl text-xs font-black transition shrink-0 ${
+                                        draftCount > 0
                                             ? 'bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 shadow-lg shadow-emerald-500/20'
                                             : 'bg-slate-800 text-slate-500 cursor-not-allowed'
                                     }">
-                                    🗳️ Confirm &amp; Lock Ballot
+                                    🗳️ Submit Ballot (${draftCount})
                                 </button>
+                            ` : ''}
+                        </div>
+                    `;
+                } else if (access.mode === 'bound_pair') {
+                    const pairNames = access.players.map(p => p.name).join(' & ');
+                    const draftCount = Object.keys(draftVotes).length;
+                    const activePlayer = access.players.find(p => p.id === selectedVoterId) || access.players[0];
+
+                    identityContainer.innerHTML = `
+                        <div class="space-y-3">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="px-2 py-0.5 rounded-md text-[10px] font-black bg-amber-400/20 text-amber-300 border border-amber-400/35">📱 SHARED PAIR DEVICE</span>
+                                    <span class="text-xs font-extrabold text-white">${escapeHtml(pairNames)}</span>
+                                </div>
+                                <span class="text-[11px] text-slate-400">1 vote each on this phone</span>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2">
+                                ${access.players.map(member => {
+                                    const voted = Boolean(ballots[member.id]);
+                                    const isSelected = member.id === activePlayer.id;
+                                    return `
+                                        <button type="button" onclick="handleSelectBoundPairMember('${member.id}')"
+                                            class="p-2.5 rounded-xl border text-left transition flex items-center justify-between gap-2 ${
+                                                isSelected
+                                                    ? 'bg-emerald-500/20 border-emerald-400 text-white'
+                                                    : 'bg-slate-900 border-slate-800 text-slate-300 hover:border-slate-700'
+                                            }">
+                                            <span class="font-extrabold text-xs sm:text-sm">${escapeHtml(member.name)}</span>
+                                            <span class="px-2 py-0.5 rounded-full text-[10px] font-black ${
+                                                voted ? 'bg-emerald-400 text-slate-950' : 'bg-amber-400/20 text-amber-300'
+                                            }">
+                                                ${voted ? 'Voted ✓' : 'Ready'}
+                                            </span>
+                                        </button>
+                                    `;
+                                }).join('')}
+                            </div>
+
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1 border-t border-slate-800/80">
+                                <p class="text-xs text-slate-300">
+                                    ${hasActiveVoterVoted
+                                        ? `✅ <strong>${escapeHtml(activePlayer.name)}</strong> has already voted in Round #${state.roundNumber}.`
+                                        : `Casting ballot as <strong>${escapeHtml(activePlayer.name)}</strong>:`}
+                                </p>
+                                ${!hasActiveVoterVoted ? `
+                                    <button type="button" onclick="submitAnonymousBallot()" ${draftCount === 0 ? 'disabled' : ''}
+                                        class="px-4 py-2 rounded-xl text-xs font-black transition shrink-0 ${
+                                            draftCount > 0
+                                                ? 'bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 shadow-lg shadow-emerald-500/20'
+                                                : 'bg-slate-800 text-slate-500 cursor-not-allowed'
+                                        }">
+                                        🗳️ Submit ${escapeHtml(activePlayer.name)}'s Ballot (${draftCount})
+                                    </button>
+                                ` : ''}
                             </div>
                         </div>
                     `;
                 }
             }
 
-            // Render Tier Groups & Live Tallied Votes
+            // Render Public Anonymous Scoreboard sorted by Net Score desc, then Upvotes desc
             if (listContainer) {
-                const tallies = computeTalliedVotes();
-                listContainer.innerHTML = '';
+                const tallies = computeAnonymousTallies();
+                const sortedPlayers = [...state.players].sort((a, b) => {
+                    const ta = tallies[a.id] || { net: 0, up: 0 };
+                    const tb = tallies[b.id] || { net: 0, up: 0 };
+                    return tb.net - ta.net || tb.up - ta.up || a.tier - b.tier || a.name.localeCompare(b.name);
+                });
 
-                [5, 4, 3, 2, 1].forEach(tierLevel => {
-                    const tMeta = TIERS[tierLevel];
-                    const tierPlayers = state.players.filter(p => Number(p.tier) === tierLevel);
-                    if (tierPlayers.length === 0) return;
+                listContainer.innerHTML = sortedPlayers.map(p => {
+                    const t = TIERS[p.tier] || TIERS[2];
+                    const tally = tallies[p.id] || { up: 0, down: 0, net: 0 };
+                    const isSelf = selectedVoterId === p.id;
+                    const myDraft = canCastVotes ? (draftVotes[p.id] || 0) : 0;
 
-                    const group = document.createElement('div');
-                    group.className = 'space-y-2.5';
-                    group.innerHTML = `
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-2">
-                                <span class="text-base">${tMeta.icon}</span>
-                                <h3 class="text-xs sm:text-sm font-black uppercase tracking-wider ${tMeta.headerClass}">
-                                    Tier ${tierLevel} — ${tMeta.label}
-                                </h3>
+                    const netFormatted = tally.net > 0 ? `+${tally.net}` : `${tally.net}`;
+                    const netBadgeClass = tally.net > 0
+                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/35'
+                        : tally.net < 0
+                            ? 'bg-rose-500/20 text-rose-300 border-rose-500/35'
+                            : 'bg-slate-800 text-slate-300 border-slate-700';
+
+                    const upBtnClass = myDraft === 1
+                        ? 'bg-emerald-500 text-slate-950 border-emerald-300 shadow-md shadow-emerald-500/25'
+                        : (!canCastVotes || isSelf)
+                            ? 'bg-slate-900/50 text-slate-500 border-slate-800 cursor-not-allowed opacity-60'
+                            : 'bg-slate-900 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/15';
+
+                    const neutralBtnClass = myDraft === 0 && canCastVotes && !isSelf
+                        ? 'bg-slate-800 text-slate-200 border-slate-600'
+                        : (!canCastVotes || isSelf)
+                            ? 'bg-slate-900/50 text-slate-600 border-slate-800 cursor-not-allowed opacity-60'
+                            : 'bg-slate-900 text-slate-400 border-slate-800 hover:bg-slate-800';
+
+                    const downBtnClass = myDraft === -1
+                        ? 'bg-rose-500 text-white border-rose-300 shadow-md shadow-rose-500/25'
+                        : (!canCastVotes || isSelf)
+                            ? 'bg-slate-900/50 text-slate-500 border-slate-800 cursor-not-allowed opacity-60'
+                            : 'bg-slate-900 text-rose-300 border-rose-500/30 hover:bg-rose-500/15';
+
+                    return `
+                        <div class="p-3.5 rounded-2xl border transition flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                            myDraft === 1
+                                ? 'border-emerald-400/60 bg-emerald-950/20'
+                                : myDraft === -1
+                                    ? 'border-rose-400/60 bg-rose-950/20'
+                                    : 'border-slate-800/90 bg-slate-950/80'
+                        }">
+                            <div class="flex items-center justify-between sm:justify-start gap-3 min-w-0">
+                                <div class="min-w-0">
+                                    <div class="flex items-center gap-1.5 flex-wrap">
+                                        <span class="font-extrabold text-sm text-white truncate">${escapeHtml(p.name)}</span>
+                                        <span class="px-1.5 py-0.5 rounded text-[10px] font-extrabold border ${t.badgeClass}">T${p.tier}</span>
+                                        ${isSelf ? '<span class="px-1.5 py-0.5 rounded text-[9px] font-black bg-slate-800 text-slate-300">YOU</span>' : ''}
+                                    </div>
+                                    <div class="flex items-center gap-2.5 text-xs mt-1">
+                                        <span class="text-emerald-400 font-extrabold">▲ ${tally.up}</span>
+                                        <span class="text-rose-400 font-extrabold">▼ ${tally.down}</span>
+                                        <span class="px-2 py-0.5 rounded-md border text-[11px] font-black ${netBadgeClass}">
+                                            Net ${netFormatted}
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
-                            <span class="text-[11px] text-slate-400 font-semibold">${tierPlayers.length} Player${tierPlayers.length === 1 ? '' : 's'}</span>
+
+                            <!-- Ballot Controls (Upvote / Neutral / Downvote) -->
+                            <div class="flex items-center gap-1.5 self-end sm:self-center shrink-0">
+                                <button type="button" onclick="setDraftVote('${p.id}', 1)"
+                                    class="tap-card px-3 py-2 rounded-xl border text-xs font-black transition ${upBtnClass}" title="Upvote">
+                                    ▲
+                                </button>
+                                <button type="button" onclick="setDraftVote('${p.id}', 0)"
+                                    class="tap-card px-3 py-2 rounded-xl border text-xs font-black transition ${neutralBtnClass}" title="Neutral">
+                                    —
+                                </button>
+                                <button type="button" onclick="setDraftVote('${p.id}', -1)"
+                                    class="tap-card px-3 py-2 rounded-xl border text-xs font-black transition ${downBtnClass}" title="Downvote">
+                                    ▼
+                                </button>
+                            </div>
                         </div>
                     `;
-
-                    const grid = document.createElement('div');
-                    grid.className = 'grid grid-cols-1 sm:grid-cols-2 gap-2.5';
-
-                    tierPlayers.forEach(p => {
-                        const tally = tallies[p.id] || { promote: 0, relegate: 0 };
-                        const isSelf = selectedVoterId === p.id;
-                        const isDraftPromote = !isLocked && draftPromoteId === p.id;
-                        const isDraftRelegate = !isLocked && draftRelegateId === p.id;
-
-                        const canVote = Boolean(selectedVoterId) && !isLocked && !isSelf;
-
-                        const promoteBtnClass = isDraftPromote
-                            ? 'bg-emerald-500 text-slate-950 border-emerald-300 shadow-md shadow-emerald-500/25'
-                            : (!canVote || p.tier >= 5)
-                                ? 'bg-slate-900/50 text-slate-500 border-slate-800 cursor-not-allowed opacity-65'
-                                : 'bg-slate-900 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/15';
-
-                        const relegateBtnClass = isDraftRelegate
-                            ? 'bg-rose-500 text-white border-rose-300 shadow-md shadow-rose-500/25'
-                            : (!canVote || p.tier <= 1)
-                                ? 'bg-slate-900/50 text-slate-500 border-slate-800 cursor-not-allowed opacity-65'
-                                : 'bg-slate-900 text-rose-300 border-rose-500/30 hover:bg-rose-500/15';
-
-                        const row = document.createElement('div');
-                        row.className = `p-3 rounded-2xl border flex items-center justify-between gap-2 transition ${
-                            isDraftPromote
-                                ? 'border-emerald-400/60 bg-emerald-950/20'
-                                : isDraftRelegate
-                                    ? 'border-rose-400/60 bg-rose-950/20'
-                                    : 'border-slate-800/90 bg-slate-950/75'
-                        }`;
-
-                        row.innerHTML = `
-                            <div class="min-w-0">
-                                <div class="flex items-center gap-1.5">
-                                    <span class="font-extrabold text-sm text-white truncate">${escapeHtml(p.name)}</span>
-                                    ${isSelf ? '<span class="px-1.5 py-0.5 rounded text-[9px] font-black bg-slate-800 text-slate-300">YOU</span>' : ''}
-                                </div>
-                                <div class="text-[11px] text-slate-400 mt-0.5">
-                                    ${ROLE_ICONS[p.role] || '🏏'} ${escapeHtml(p.role)} • Live: <span class="text-emerald-400 font-bold">▲ ${tally.promote}</span> / <span class="text-rose-400 font-bold">▼ ${tally.relegate}</span>
-                                </div>
-                            </div>
-
-                            <div class="flex items-center gap-1.5 shrink-0">
-                                <button type="button" onclick="toggleDraftPick('${p.id}', 'promote')"
-                                    class="tap-card px-2.5 py-2 rounded-xl border text-xs font-black flex items-center gap-1 transition ${promoteBtnClass}"
-                                    title="Promote (+1 Tier)">
-                                    <span>▲</span>
-                                    <span>${tally.promote + (isDraftPromote ? 1 : 0)}</span>
-                                </button>
-                                <button type="button" onclick="toggleDraftPick('${p.id}', 'relegate')"
-                                    class="tap-card px-2.5 py-2 rounded-xl border text-xs font-black flex items-center gap-1 transition ${relegateBtnClass}"
-                                    title="Relegate (-1 Tier)">
-                                    <span>▼</span>
-                                    <span>${tally.relegate + (isDraftRelegate ? 1 : 0)}</span>
-                                </button>
-                            </div>
-                        `;
-                        grid.appendChild(row);
-                    });
-
-                    group.appendChild(grid);
-                    listContainer.appendChild(group);
-                });
-            }
-
-            // Render Approved History Archive
-            const historySection = document.getElementById('round-history-section');
-            const historyList = document.getElementById('round-history-list');
-            if (historySection && historyList) {
-                if (!state.roundHistory || state.roundHistory.length === 0) {
-                    historySection.classList.add('hidden');
-                } else {
-                    historySection.classList.remove('hidden');
-                    historyList.innerHTML = state.roundHistory.map(h => `
-                        <div class="p-3 rounded-2xl bg-slate-950/75 border border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
-                            <div class="font-extrabold text-white">Round #${h.round} <span class="text-slate-500 font-medium">(${escapeHtml(h.approvedAt)} • ${h.totalBallots} ballots)</span></div>
-                            <div class="flex flex-wrap items-center gap-2 text-[11px]">
-                                <span class="text-emerald-300 font-bold">▲ ${escapeHtml(h.promoted)}</span>
-                                <span class="text-slate-600">•</span>
-                                <span class="text-rose-300 font-bold">▼ ${escapeHtml(h.relegated)}</span>
-                            </div>
-                        </div>
-                    `).join('');
-                }
+                }).join('');
             }
         }
 
-        function renderCaptainRoster() {
-            const list = document.getElementById('captain-roster-list');
-            if (!list) return;
+        function renderCaptainTab() {
+            const capRoundEl = document.getElementById('cap-round-num');
+            const freezeBtn = document.getElementById('freeze-claims-toggle');
+            const linkedSummaryEl = document.getElementById('cap-linked-summary');
+            const rosterList = document.getElementById('captain-roster-list');
 
-            const sorted = [...state.players].sort((a, b) => b.tier - a.tier || a.name.localeCompare(b.name));
-            list.innerHTML = '';
+            if (capRoundEl) capRoundEl.textContent = state.roundNumber;
 
-            sorted.forEach(p => {
-                const row = document.createElement('div');
-                row.className = 'p-3 rounded-2xl bg-slate-950/85 border border-slate-800 grid grid-cols-1 sm:grid-cols-12 items-center gap-2';
+            if (freezeBtn) {
+                if (state.freezeClaims) {
+                    freezeBtn.textContent = 'ON (Locked)';
+                    freezeBtn.className = 'px-3 py-1.5 rounded-full text-xs font-black border transition shrink-0 bg-amber-400 border-amber-300 text-slate-950';
+                } else {
+                    freezeBtn.textContent = 'OFF (Open)';
+                    freezeBtn.className = 'px-3 py-1.5 rounded-full text-xs font-black border transition shrink-0 bg-slate-900 border-slate-700 text-slate-400';
+                }
+            }
 
-                row.innerHTML = `
-                    <input type="text" value="${escapeHtml(p.name)}" maxlength="22"
-                        onchange="captainUpdatePlayerField('${p.id}', 'name', this.value)"
-                        class="sm:col-span-4 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-xs font-extrabold text-white focus:outline-none focus:border-amber-400">
-                    <select onchange="captainUpdatePlayerField('${p.id}', 'tier', this.value)"
-                        class="sm:col-span-4 px-2.5 py-1.5 rounded-xl bg-slate-900 border border-amber-400/35 text-xs font-bold text-amber-200 focus:outline-none focus:border-amber-400">
-                        ${[5, 4, 3, 2, 1].map(lvl => `
-                            <option value="${lvl}" ${Number(p.tier) === lvl ? 'selected' : ''}>
-                                Tier ${lvl} — ${TIERS[lvl].label} ${TIERS[lvl].icon}
-                            </option>
-                        `).join('')}
-                    </select>
-                    <select onchange="captainUpdatePlayerField('${p.id}', 'role', this.value)"
-                        class="sm:col-span-3 px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-xs font-bold text-slate-200 focus:outline-none focus:border-amber-400">
-                        ${['Batsman', 'Bowler', 'All-Rounder', 'Wicketkeeper'].map(role => `
-                            <option value="${role}" ${p.role === role ? 'selected' : ''}>
-                                ${ROLE_ICONS[role]} ${role}
-                            </option>
-                        `).join('')}
-                    </select>
-                    <div class="sm:col-span-1 flex justify-end">
-                        <button type="button" onclick="captainRemovePlayer('${p.id}', '${escapeHtml(p.name).replace(/'/g, "\\'")}')"
-                            class="w-8 h-8 rounded-xl bg-rose-500/15 hover:bg-rose-500/30 text-rose-400 border border-rose-500/30 flex items-center justify-center text-xs font-black" title="Remove Player">
-                            ✕
-                        </button>
+            const bindings = state.deviceBindings || {};
+            const linkedCount = state.players.filter(p => Boolean(bindings[p.id])).length;
+            if (linkedSummaryEl) {
+                linkedSummaryEl.textContent = `${linkedCount} / ${state.players.length} Devices Linked`;
+            }
+
+            if (!rosterList) return;
+
+            const sorted = [...state.players].sort((a, b) => a.name.localeCompare(b.name));
+            rosterList.innerHTML = sorted.map(p => {
+                const isLinked = Boolean(bindings[p.id]);
+                const pairNames = getPairNamesForPlayerName(p.name);
+
+                return `
+                    <div class="p-3.5 rounded-2xl bg-slate-950/90 border border-slate-800 space-y-2.5">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2.5 py-1 rounded-full text-[11px] font-extrabold ${
+                                    isLinked
+                                        ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/35'
+                                        : 'bg-slate-900 text-slate-400 border border-slate-700'
+                                }">
+                                    ${isLinked ? '📱 Linked' : '⚪ Unclaimed'}
+                                </span>
+                                ${pairNames ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-500/15 text-amber-300 border border-amber-400/25">Pair: ${escapeHtml(pairNames.join(' & '))}</span>` : ''}
+                            </div>
+
+                            ${isLinked ? `
+                                <button type="button" onclick="captainUnlinkAndVoid('${p.id}', '${escapeHtml(p.name).replace(/'/g, "\\'")}')"
+                                    class="px-3 py-1.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/35 text-rose-300 border border-rose-500/40 text-xs font-black transition">
+                                    Unlink &amp; Void Vote
+                                </button>
+                            ` : ''}
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+                            <input type="text" value="${escapeHtml(p.name)}" maxlength="22"
+                                onchange="captainUpdatePlayerField('${p.id}', 'name', this.value)"
+                                class="sm:col-span-4 px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs font-extrabold text-white focus:outline-none focus:border-amber-400">
+                            <select onchange="captainUpdatePlayerField('${p.id}', 'tier', this.value)"
+                                class="sm:col-span-4 px-2.5 py-2 rounded-xl bg-slate-900 border border-amber-400/35 text-xs font-bold text-amber-200 focus:outline-none focus:border-amber-400">
+                                ${[1, 2, 3].map(lvl => `
+                                    <option value="${lvl}" ${Number(p.tier) === lvl ? 'selected' : ''}>
+                                        Tier ${lvl} — ${TIERS[lvl].label} ${TIERS[lvl].icon}
+                                    </option>
+                                `).join('')}
+                            </select>
+                            <select onchange="captainUpdatePlayerField('${p.id}', 'role', this.value)"
+                                class="sm:col-span-4 px-2.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs font-bold text-slate-200 focus:outline-none focus:border-amber-400">
+                                ${['Batsman', 'Bowler', 'All-Rounder', 'Wicketkeeper'].map(role => `
+                                    <option value="${role}" ${p.role === role ? 'selected' : ''}>
+                                        ${ROLE_ICONS[role]} ${role}
+                                    </option>
+                                `).join('')}
+                            </select>
+                        </div>
                     </div>
                 `;
-                list.appendChild(row);
-            });
+            }).join('');
         }
 
         // =====================================================================
-        // 8. MODAL & TOAST UTILITIES
+        // 9. MODAL & TOAST UTILITIES
         // =====================================================================
         function openConfirmModal(title, message, onConfirm) {
             document.getElementById('confirm-title').textContent = title;
